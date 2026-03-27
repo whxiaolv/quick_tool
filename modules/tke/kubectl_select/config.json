@@ -1,0 +1,37 @@
+{
+  "forbidden_commands": [
+    "delete",
+    "create",
+    "apply",
+    "patch",
+    "replace",
+    "edit",
+    "scale",
+    "autoscale",
+    "cordon",
+    "uncordon",
+    "drain",
+    "taint",
+    "port-forward",
+    "proxy",
+    "attach",
+    "exec",
+    "cp",
+    "auth",
+    "certificate",
+    "cluster-info",
+    "top",
+    "cordon",
+    "uncordon",
+    "drain",
+    "taint"
+  ],
+  "allowed_commands": [
+    "get",
+    "describe",
+    "logs",
+    "explain",
+    "api-resources",
+    "api-versions"
+  ]
+}

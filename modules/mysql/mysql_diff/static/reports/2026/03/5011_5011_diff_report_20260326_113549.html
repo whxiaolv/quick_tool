@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MySQL数据库对比报告</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+        .header .time {
+            opacity: 0.8;
+            font-size: 14px;
+        }
+        .content {
+            padding: 30px;
+        }
+        .section {
+            margin-bottom: 30px;
+        }
+        .section-title {
+            font-size: 20px;
+            color: #1e3c72;
+            border-bottom: 3px solid #1e3c72;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+        }
+        .stat-card.left-db {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+        }
+        .stat-card.right-db {
+            background: linear-gradient(135deg, #ee0979 0%, #ff6a00 100%);
+        }
+        .stat-card .label {
+            font-size: 14px;
+            opacity: 0.9;
+            margin-bottom: 5px;
+        }
+        .stat-card .value {
+            font-size: 28px;
+            font-weight: bold;
+        }
+        .unique-tables {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .unique-tables .box {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 20px;
+        }
+        .unique-tables .box h3 {
+            color: #495057;
+            margin-bottom: 15px;
+            font-size: 16px;
+        }
+        .unique-tables .box.left-db h3 {
+            color: #11998e;
+        }
+        .unique-tables .box.right-db h3 {
+            color: #ee0979;
+        }
+        .unique-tables ul {
+            list-style: none;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        .unique-tables li {
+            padding: 8px 12px;
+            background: white;
+            margin-bottom: 5px;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+        .table-container {
+            overflow-x: auto;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+        th {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            padding: 15px 12px;
+            text-align: left;
+            font-weight: 600;
+            position: sticky;
+            top: 0;
+        }
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #e9ecef;
+            vertical-align: top;
+        }
+        tr:hover {
+            background: #f8f9fa;
+        }
+        .table-name {
+            font-weight: 600;
+            color: #1e3c72;
+            min-width: 150px;
+        }
+        .db-cell {
+            min-width: 250px;
+        }
+        .db-cell.left-db {
+            border-left: 4px solid #11998e;
+        }
+        .db-cell.right-db {
+            border-left: 4px solid #ee0979;
+        }
+        .row-count {
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+        }
+        .update-time {
+            font-size: 12px;
+            color: #666;
+            margin-top: 5px;
+        }
+        .no-update {
+            color: #999;
+            font-style: italic;
+        }
+        .table-not-exist {
+            color: #dc3545;
+            font-style: italic;
+        }
+        .diff-highlight {
+            background: #fff3cd;
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+        .footer {
+            text-align: center;
+            padding: 20px;
+            background: #f8f9fa;
+            color: #6c757d;
+            font-size: 14px;
+        }
+        @media (max-width: 768px) {
+            .unique-tables {
+                grid-template-columns: 1fr;
+            }
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📊 MySQL数据库对比报告</h1>
+            <div class="time">生成时间: 2026-03-26 11:35:49</div>
+        </div>
+        <div class="content">
+            <div class="section">
+                <div class="stats-grid">
+                    <div class="stat-card left-db">
+                        <div class="label">左侧数据库</div>
+                        <div class="value">33</div>
+                        <div class="label">calendarapi</div>
+                    </div>
+                    <div class="stat-card right-db">
+                        <div class="label">右侧数据库</div>
+                        <div class="value">33</div>
+                        <div class="label">calendarapi</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="label">共有表</div>
+                        <div class="value">33</div>
+                    </div>
+                </div>
+            </div>
+            <div class="section">
+                <h2 class="section-title">📋 表数据量对比详情</h2>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>表名</th>
+                                <th>calendarapi (左侧)</th>
+                                <th>calendarapi (右侧)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="table-name">announcement</td>
+                                <td class="db-cell left-db">
+                    <div class="row-count">60 条数据</div>
+                    <div class="update-time no-update">没有更新字段</div>
+                                </td>
+                                <td class="db-cell right-db">
+                    <div class="row-count">60 条数据</div>
+                    <div class="update-time no-update">没有更新字段</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="table-name">cards</td>
+                                <td class="db-cell left-db">
+                    <div class="row-count">18 条数据</div>
+                    <div class="update-time no-update">没有更新字段</div>
+                                </td>
+                                <td class="db-cell right-db">
+                    <div class="row-count">18 条数据</div>
+                    <div class="update-time no-update">没有更新字段</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="table-name">photos</td>
+                                <td class="db-cell left-db">
+                    <div class="row-count">13 条数据</div>
+                    <div class="update-time no-update">没有更新字段</div>
+                                </td>
+                                <td class="db-cell right-db">
+                    <div class="row-count">13 条数据</div>
+                    <div class="update-time no-update">没有更新字段</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="table-name">t_admin_event</td>
+                                <td class="db-cell left-db">
+                    <div class="row-count">28415 条数据</div>
+                    <div class="update-time no-update">没有更新字段</div>
+                                </td>
+                                <td class="db-cell right-db">
+                    <div class="row-count">28415 条数据</div>
+                    <div class="update-time no-update">没有更新字段</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="table-name">t_album</td>
+                                <td class="db-cell left-db">
+                    <div class="row-count">309673 条数据</div>
+                    <div class="update-time no-update">没有更新字段</div>
+                                </td>
+                                <td class="db-cell right-db">
+                    <div class="row-count">309673 条数据</div>
+                    <div class="update-time no-update">没有更新字段</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="table-name">t_background_img</td>
+                                <td class="db-cell left-db">
+                    <div class="row-count">1 条数据</div>
+                    <div class="update-time no-update">没有更新字段</div>
+                                </td>
+                                <td class="db-cell right-db">
+                    <div class="row-count">1 条数据</div>
+                    <div class="update-time no-update">没有更新字段</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="table-name">t_cms_task</td>
+                                <td class="db-cell left-db">
+                    <div class="row-count">1091932 条数据</div>
+                    <div class="update-time no-update">没有更新字段</div>
+                                </td>
+                                <td class="db-cell right-db">
+                    <div class="row-count">1091932 条数据</div>
+                    <div class="update-time no-update">没有更新字段</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="table-name">t_config</td>
+                                <td class="db-cell left-db">
+                    <div class="row-count">10 条数据</div>
+                    <div class="update-time no-update">没有更新字段</div>
+                                </td>
+                                <td class="db-cell right-db">
+                    <div class="row-count">10 条数据</div>
+                    <div class="update-time no-update">没有更新字段</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="table-name">t_config_source_map</td>
+                                <td class="db-cell left-db">
+                    <div class="row-count">0 条数据</div>
+                    <div class="update-time no-update">没有更新字段</div>
+                                </td>
+                                <td class="db-cell right-db">
+                    <div class="row-count">0 条数据</div>
+                    <div class="update-time no-update">没有更新字段</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="table-name">t_dbstate</td>
+                                <td class="db-cell left-db">
+                    <div class="row-count">1 条数据</div>
+                    <div class="update-time no-update">没有更新字段</div>
+                                </td>
+                                <td class="db-cell right-db">
+                    <div class="row-count">1 条数据</div>
+                    <div class="update-time no-update">没有更新字段</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="table-name">t_event</td>
+                                <td class="db-cell left-db">
+                    <div class="row-count">3632200 条数据</div>
+                    <div class="update-time no-update">没有更新字段</div>
+                                </td>
+                                <td class="db-cell right-db">
+                    <div class="row-count">3632200 条数据</div>
+                    <div class="update-time no-update">没有更新字段</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="table-name">t_event_source_map</td>
+                                <td class="db-cell left-db">
+                    <div class="row-count">3746600 条数据</div>
+                    <div class="update-time no-update">没有更新字段</div>
+                                </td>
+                                <td class="db-cell right-db">
+                    <div class="row-count">3746600 条数据</div>
+                    <div class="update-time no-update">没有更新字段</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="table-name">t_matchanalyze</td>
+                                <td class="db-cell left-db">
+                    <div class="row-count">8914 条数据</div>
+                    <div class="update-time no-update">没有更新字段</div>
+                                </td>
+                                <td class="db-cell right-db">
+                    <div class="row-count">8914 条数据</div>
+                    <div class="update-time no-update">没有更新字段</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="table-name">t_mediaup</td>
+                                <td class="db-cell left-db">
+                    <div class="row-count">4943475 条数据</div>
+                    <div class="update-time no-update">没有更新字段</div>
+                                </td>
+                                <td class="db-cell right-db">
+                    <div class="row-count">4943475 条数据</div>
+                    <div class="update-time no-update">没有更新字段</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="table-name">t_mutex</td>
+                                <td class="db-cell left-db">
+                    <div class="row-count">1 条数据</div>
+                    <div class="update-time no-update">没有更新字段</div>
+                                </td>
+                                <td class="db-cell right-db">
+                    <div class="row-count">1 条数据</div>
+                    <div class="update-time no-update">没有更新字段</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="table-name">t_nettv_task</td>
+                                <td class="db-cell left-db">
+                    <div class="row-count">5481742 条数据</div>
+                    <div class="update-time no-update">没有更新字段</div>
+                                </td>
+                                <td class="db-cell right-db">
+                    <div class="row-count">5481742 条数据</div>
+                    <div class="update-time no-update">没有更新字段</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="table-name">t_nettvevent</td>
+                                <td class="db-cell left-db">
+                    <div class="row-count">12055 条数据</div>
+                    <div class="update-time no-update">没有更新字段</div>
+                                </td>
+                                <td class="db-cell right-db">
+                    <div class="row-count">12055 条数据</div>
+                    <div class="update-time no-update">没有更新字段</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="table-name">t_order</td>
+                                <td class="db-cell left-db">
+                    <div class="row-count">22235 条数据</div>
+                    <div class="update-time no-update">没有更新字段</div>
+                                </td>
+                                <td class="db-cell right-db">
+                    <div class="row-count">22235 条数据</div>
+                    <div class="update-time no-update">没有更新字段</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="table-name">t_pushqueue</td>
+                                <td class="db-cell left-db">
+                    <div class="row-count">2330 条数据</div>
+                    <div class="update-time no-update">没有更新字段</div>
+                                </td>
+                                <td class="db-cell right-db">
+                    <div class="row-count">2330 条数据</div>
+                    <div class="update-time no-update">没有更新字段</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="table-name">t_pushqueue_log</td>
+                                <td class="db-cell left-db">
+                    <div class="row-count">658378 条数据</div>
+                    <div class="update-time no-update">没有更新字段</div>
+                                </td>
+                                <td class="db-cell right-db">
+                    <div class="row-count">658378 条数据</div>
+                    <div class="update-time no-update">没有更新字段</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="table-name">t_recommend</td>
+                                <td class="db-cell left-db">
+                    <div class="row-count">200 条数据</div>
+                    <div class="update-time no-update">没有更新字段</div>
+                                </td>
+                                <td class="db-cell right-db">
+                    <div class="row-count">200 条数据</div>
+                    <div class="update-time no-update">没有更新字段</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="table-name">t_recommend_detail</td>
+                                <td class="db-cell left-db">
+                    <div class="row-count">1273 条数据</div>
+                    <div class="update-time no-update">没有更新字段</div>
+                                </td>
+                                <td class="db-cell right-db">
+                    <div class="row-count">1273 条数据</div>
+                    <div class="update-time no-update">没有更新字段</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="table-name">t_scratchable</td>
+                                <td class="db-cell left-db">
+                    <div class="row-count">17 条数据</div>
+                    <div class="update-time no-update">没有更新字段</div>
+                                </td>
+                                <td class="db-cell right-db">
+                    <div class="row-count">17 条数据</div>
+                    <div class="update-time no-update">没有更新字段</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="table-name">t_scratchable_num</td>
+                                <td class="db-cell left-db">
+                    <div class="row-count">1 条数据</div>
+                    <div class="update-time no-update">没有更新字段</div>
+                                </td>
+                                <td class="db-cell right-db">
+                    <div class="row-count">1 条数据</div>
+                    <div class="update-time no-update">没有更新字段</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="table-name">t_source_run</td>
+                                <td class="db-cell left-db">
+                    <div class="row-count">1 条数据</div>
+                    <div class="update-time no-update">没有更新字段</div>
+                                </td>
+                                <td class="db-cell right-db">
+                    <div class="row-count">1 条数据</div>
+                    <div class="update-time no-update">没有更新字段</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="table-name">t_spare_album</td>
+                                <td class="db-cell left-db">
+                    <div class="row-count">41116 条数据</div>
+                    <div class="update-time no-update">没有更新字段</div>
+                                </td>
+                                <td class="db-cell right-db">
+                    <div class="row-count">41116 条数据</div>
+                    <div class="update-time no-update">没有更新字段</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="table-name">t_spare_source</td>
+                                <td class="db-cell left-db">
+                    <div class="row-count">0 条数据</div>
+                    <div class="update-time no-update">没有更新字段</div>
+                                </td>
+                                <td class="db-cell right-db">
+                    <div class="row-count">0 条数据</div>
+                    <div class="update-time no-update">没有更新字段</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="table-name">t_spare_video</td>
+                                <td class="db-cell left-db">
+                    <div class="row-count">46398 条数据</div>
+                    <div class="update-time no-update">没有更新字段</div>
+                                </td>
+                                <td class="db-cell right-db">
+                    <div class="row-count">46398 条数据</div>
+                    <div class="update-time no-update">没有更新字段</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="table-name">t_tag_album_mapping</td>
+                                <td class="db-cell left-db">
+                    <div class="row-count">88927 条数据</div>
+                    <div class="update-time no-update">没有更新字段</div>
+                                </td>
+                                <td class="db-cell right-db">
+                    <div class="row-count">88927 条数据</div>
+                    <div class="update-time no-update">没有更新字段</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="table-name">t_tag_event_map</td>
+                                <td class="db-cell left-db">
+                    <div class="row-count">3424367 条数据</div>
+                    <div class="update-time no-update">没有更新字段</div>
+                                </td>
+                                <td class="db-cell right-db">
+                    <div class="row-count">3424367 条数据</div>
+                    <div class="update-time no-update">没有更新字段</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="table-name">t_third_party_services</td>
+                                <td class="db-cell left-db">
+                    <div class="row-count">6 条数据</div>
+                    <div class="update-time no-update">没有更新字段</div>
+                                </td>
+                                <td class="db-cell right-db">
+                    <div class="row-count">6 条数据</div>
+                    <div class="update-time no-update">没有更新字段</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="table-name">t_user_config</td>
+                                <td class="db-cell left-db">
+                    <div class="row-count">473 条数据</div>
+                    <div class="update-time no-update">没有更新字段</div>
+                                </td>
+                                <td class="db-cell right-db">
+                    <div class="row-count">473 条数据</div>
+                    <div class="update-time no-update">没有更新字段</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="table-name">t_video</td>
+                                <td class="db-cell left-db">
+                    <div class="row-count">3734171 条数据</div>
+                    <div class="update-time no-update">没有更新字段</div>
+                                </td>
+                                <td class="db-cell right-db">
+                    <div class="row-count">3734171 条数据</div>
+                    <div class="update-time no-update">没有更新字段</div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="footer">
+            报告生成完成 | MySQL数据库对比工具
+        </div>
+    </div>
+</body>
+</html>

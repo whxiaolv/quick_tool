@@ -1,0 +1,1 @@
+mysql_conn = testuser:DM4OWQ@tcp(m3849i_txxxxx.com:3849)/upgrade?charset=utf8&parseTime=true&loc=Asia%2FShanghai

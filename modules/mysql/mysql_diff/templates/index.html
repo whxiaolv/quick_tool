@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <title>MySQL 数据库差异对比工具</title>
+    <link rel="stylesheet" href="static/style.css">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>📊 MySQL 数据库差异对比工具</h1>
+            <p class="subtitle">对比两个数据库表的结构和数据差异，生成可视化报告</p>
+        </header>
+
+        <main class="main-content">
+            <div class="comparison-container">
+                <div class="side-panel left-panel">
+                    <div class="panel-header">
+                        <h2>🔵 左侧数据源</h2>
+                        <div class="source-toggle">
+                            <button class="toggle-btn active" data-side="left" data-type="database">数据库</button>
+                            <button class="toggle-btn" data-side="left" data-type="file">文件上传</button>
+                        </div>
+                    </div>
+
+                    <div class="panel-content">
+                        <div class="database-form" id="left-database-form">
+                            <div class="import-config-section">
+                                <button class="btn btn-import" id="left-import-btn">
+                                    <span class="btn-icon">📥</span>
+                                    导入配置文件
+                                </button>
+                                <input type="file" id="left-config-file" accept=".txt,.conf,.cfg,.ini,.env,.json,.php,.py,.go,.yaml,.yml" hidden>
+                                <p class="import-hint">支持多种配置格式：Yii、Go、JSON、INI、ENV 等</p>
+                                
+                                <div class="config-text-section">
+                                    <label class="config-text-label">或直接粘贴配置内容：</label>
+                                    <textarea class="config-textarea" id="left-config-text" placeholder="粘贴配置内容，例如：&#10;mysql:host=localhost;port=3306;dbname=mydb&#10;username=root&#10;password=123456"></textarea>
+                                    <button class="btn btn-parse" id="left-parse-btn">
+                                        <span class="btn-icon">🔍</span>
+                                        识别配置
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>主机地址</label>
+                                <input type="text" id="left-host" placeholder="localhost" value="localhost">
+                            </div>
+                            <div class="form-group">
+                                <label>端口</label>
+                                <input type="number" id="left-port" placeholder="3306" value="3306">
+                            </div>
+                            <div class="form-group">
+                                <label>数据库名</label>
+                                <input type="text" id="left-database" placeholder="database_name">
+                            </div>
+                            <div class="form-group">
+                                <label>用户名</label>
+                                <input type="text" id="left-user" placeholder="root">
+                            </div>
+                            <div class="form-group">
+                                <label>密码</label>
+                                <input type="password" id="left-password" placeholder="password">
+                            </div>
+                            <button class="btn btn-test" id="left-test-btn">测试连接</button>
+                            <div class="form-group" style="margin-top: 15px;">
+                                <label>选择表</label>
+                                <select id="left-table-select" class="select-input" disabled>
+                                    <option value="">-- 请先测试连接 --</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="file-upload-form hidden" id="left-file-form">
+                            <div class="upload-area" id="left-upload-area">
+                                <div class="upload-icon">📁</div>
+                                <p>拖拽文件到此处或点击上传</p>
+                                <p class="upload-hint">支持 .sql, .csv, .json 文件（最大 50MB）</p>
+                                <input type="file" id="left-file-input" multiple accept=".sql,.csv,.json" hidden>
+                            </div>
+                            <div class="uploaded-files" id="left-uploaded-files"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="side-panel right-panel">
+                    <div class="panel-header">
+                        <h2>🟡 右侧数据源</h2>
+                        <div class="source-toggle">
+                            <button class="toggle-btn active" data-side="right" data-type="database">数据库</button>
+                            <button class="toggle-btn" data-side="right" data-type="file">文件上传</button>
+                        </div>
+                    </div>
+
+                    <div class="panel-content">
+                        <div class="database-form" id="right-database-form">
+                            <div class="import-config-section">
+                                <button class="btn btn-import" id="right-import-btn">
+                                    <span class="btn-icon">📥</span>
+                                    导入配置文件
+                                </button>
+                                <input type="file" id="right-config-file" accept=".txt,.conf,.cfg,.ini,.env,.json,.php,.py,.go,.yaml,.yml" hidden>
+                                <p class="import-hint">支持多种配置格式：Yii、Go、JSON、INI、ENV 等</p>
+                                
+                                <div class="config-text-section">
+                                    <label class="config-text-label">或直接粘贴配置内容：</label>
+                                    <textarea class="config-textarea" id="right-config-text" placeholder="粘贴配置内容，例如：&#10;mysql:host=localhost;port=3306;dbname=mydb&#10;username=root&#10;password=123456"></textarea>
+                                    <button class="btn btn-parse" id="right-parse-btn">
+                                        <span class="btn-icon">🔍</span>
+                                        识别配置
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>主机地址</label>
+                                <input type="text" id="right-host" placeholder="localhost" value="localhost">
+                            </div>
+                            <div class="form-group">
+                                <label>端口</label>
+                                <input type="number" id="right-port" placeholder="3306" value="3306">
+                            </div>
+                            <div class="form-group">
+                                <label>数据库名</label>
+                                <input type="text" id="right-database" placeholder="database_name">
+                            </div>
+                            <div class="form-group">
+                                <label>用户名</label>
+                                <input type="text" id="right-user" placeholder="root">
+                            </div>
+                            <div class="form-group">
+                                <label>密码</label>
+                                <input type="password" id="right-password" placeholder="password">
+                            </div>
+                            <button class="btn btn-test" id="right-test-btn">测试连接</button>
+                            <div class="form-group" style="margin-top: 15px;">
+                                <label>选择表</label>
+                                <select id="right-table-select" class="select-input" disabled>
+                                    <option value="">-- 请先测试连接 --</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="file-upload-form hidden" id="right-file-form">
+                            <div class="upload-area" id="right-upload-area">
+                                <div class="upload-icon">📁</div>
+                                <p>拖拽文件到此处或点击上传</p>
+                                <p class="upload-hint">支持 .sql, .csv, .json 文件（最大 50MB）</p>
+                                <input type="file" id="right-file-input" multiple accept=".sql,.csv,.json" hidden>
+                            </div>
+                            <div class="uploaded-files" id="right-uploaded-files"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="file-association hidden" id="file-association">
+                <h3>🔗 文件关联配置</h3>
+                <p class="association-hint">检测到多个文件，请手动关联对比关系</p>
+                <div class="association-list" id="association-list"></div>
+            </div>
+
+            <div class="action-bar">
+                <button class="btn btn-primary btn-large" id="compare-btn">
+                    <span class="btn-icon">▶️</span>
+                    开始对比数据表
+                </button>
+                <button class="btn btn-secondary btn-large" id="compare-database-btn">
+                    <span class="btn-icon">🗄️</span>
+                    开始对比数据库
+                </button>
+            </div>
+
+            <div class="progress-container hidden" id="progress-container">
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progress-fill"></div>
+                </div>
+                <p class="progress-text" id="progress-text">准备中...</p>
+            </div>
+
+            <div class="result-container hidden" id="result-container">
+                <div class="result-header">
+                    <h3>📋 对比结果</h3>
+                </div>
+                <div class="result-content" id="result-content">
+                    <div class="result-stats" id="result-stats"></div>
+                    <div class="result-actions">
+                        <button class="btn btn-view" id="view-report-btn">
+                            <span class="btn-icon">📄</span>
+                            查看详细报告
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="error-container hidden" id="error-container">
+                <div class="error-header">
+                    <span class="error-icon">❌</span>
+                    <h3>错误信息</h3>
+                </div>
+                <div class="error-content" id="error-content"></div>
+            </div>
+
+            <div class="history-container">
+                <div class="history-header">
+                    <h3>📜 历史报告</h3>
+                    <div class="header-actions">
+                        <button class="btn btn-batch-delete" id="batch-delete-btn" disabled>
+                            <span class="btn-icon">🗑️</span>
+                            批量删除 (<span id="selected-count">0</span>)
+                        </button>
+                        <button class="btn btn-refresh" id="refresh-reports-btn">🔄 刷新</button>
+                    </div>
+                </div>
+                <div class="history-list" id="history-list">
+                    <div class="loading">加载中...</div>
+                </div>
+            </div>
+        </main>
+
+        <footer class="footer">
+            <p>© 2024 MySQL 数据库差异对比工具 | 支持数据库直连和文件上传</p>
+        </footer>
+    </div>
+
+    <script src="static/app.js"></script>
+</body>
+</html>

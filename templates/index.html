@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ config.title }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>🛠️ {{ config.title }}</h1>
+            <p class="subtitle">{{ config.description }}</p>
+        </header>
+
+        <main class="main-content">
+            <div class="modules-grid">
+                {% for module in config.modules %}
+                <div class="module-card">
+                    <div class="module-header">
+                        <span class="module-icon">{{ module.icon }}</span>
+                        <h2 class="module-name">{{ module.name }}</h2>
+                    </div>
+                    <p class="module-description">{{ module.description }}</p>
+                    
+                    {% if module.children %}
+                    <div class="module-children">
+                        {% for child in module.children %}
+                        <a href="{{ child.path }}/" class="child-card">
+                            <span class="child-icon">{{ child.icon }}</span>
+                            <div class="child-info">
+                                <span class="child-name">{{ child.name }}</span>
+                                <span class="child-desc">{{ child.description }}</span>
+                            </div>
+                        </a>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+        </main>
+
+        <footer class="footer">
+            <p>© 2026 Quick Tool - 模块化工具管理平台</p>
+        </footer>
+    </div>
+</body>
+</html>

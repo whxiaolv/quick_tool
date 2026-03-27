@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- 强制浏览器不要缓存这个页面！ -->
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <title>TKE Kubectl 管理平台</title>
+    <link rel="stylesheet" href="static/style.css">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>🚀 TKE Kubectl 管理平台</h1>
+            <p class="subtitle">腾讯云 TKE 集群资源管理与脚本执行</p>
+        </header>
+
+        <div id="kubectl-warning" class="warning-box hidden">
+            <div class="warning-icon">⚠️</div>
+            <div class="warning-content">
+                <h3>kubectl 未安装</h3>
+                <p>请先安装 kubectl 工具才能使用此平台。</p>
+                <a href="https://kubernetes.io/zh/docs/tasks/tools/" target="_blank" class="install-link">安装指南 →</a>
+            </div>
+        </div>
+
+        <main class="main-content" id="main-content">
+            <div class="step-container">
+                <div class="step">
+                    <div class="step-header">
+                        <span class="step-number">1</span>
+                        <span class="step-title">选择集群</span>
+                    </div>
+                    <div class="step-content">
+                        <select id="cluster-select" class="select-input">
+                            <option value="">-- 请选择集群 --</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="step" id="namespace-step" style="display: none;">
+                    <div class="step-header">
+                        <span class="step-number">2</span>
+                        <span class="step-title">选择命名空间</span>
+                    </div>
+                    <div class="step-content">
+                        <select id="namespace-select" class="select-input">
+                            <option value="">-- 请选择命名空间 --</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="step" id="deployment-step" style="display: none;">
+                    <div class="step-header">
+                        <span class="step-number">3</span>
+                        <span class="step-title">选择部署</span>
+                    </div>
+                    <div class="step-content">
+                        <div class="loading hidden" id="deployment-loading">
+                            <div class="spinner"></div>
+                            <span>加载中...</span>
+                        </div>
+                        <select id="deployment-select" class="select-input">
+                            <option value="">-- 请选择部署 --</option>
+                        </select>
+                        <div class="search-box" style="margin-top: 10px;">
+                            <input type="text" id="deployment-search" class="search-input" placeholder="输入关键词筛选部署...">
+                            <button id="search-deployment-btn" class="btn btn-search">筛选</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="step" id="pod-step" style="display: none;">
+                    <div class="step-header">
+                        <span class="step-number">4</span>
+                        <span class="step-title">选择 Pod</span>
+                    </div>
+                    <div class="step-content">
+                        <div class="loading hidden" id="pod-loading">
+                            <div class="spinner"></div>
+                            <span>加载中...</span>
+                        </div>
+                        <select id="pod-select" class="select-input">
+                            <option value="">-- 请选择 Pod --</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="step" id="action-step" style="display: none;">
+                    <div class="step-header">
+                        <span class="step-number">5</span>
+                        <span class="step-title">选择操作类型</span>
+                    </div>
+                    <div class="step-content">
+                        <select id="action-select" class="select-input">
+                            <option value="">-- 请选择操作 --</option>
+                            <option value="script">📜 执行脚本</option>
+                            <option value="command">💻 执行语句</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="step" id="script-step" style="display: none;">
+                    <div class="step-header">
+                        <span class="step-number">6</span>
+                        <span class="step-title">选择脚本</span>
+                        <button id="refresh-scripts-btn" class="btn btn-refresh" title="刷新脚本列表">🔄 刷新</button>
+                    </div>
+                    <div class="step-content">
+                        <div class="loading hidden" id="script-loading">
+                            <div class="spinner"></div>
+                            <span>加载中...</span>
+                        </div>
+                        <div id="script-list" class="script-list"></div>
+                    </div>
+                </div>
+
+                <div class="step" id="command-step" style="display: none;">
+                    <div class="step-header">
+                        <span class="step-number">6</span>
+                        <span class="step-title">输入执行语句</span>
+                    </div>
+                    <div class="step-content">
+                        <textarea id="command-input" class="command-input" placeholder="请输入要执行的命令，例如：&#10;ls -la /letv/logs&#10;cat /etc/hosts&#10;df -h" rows="5"></textarea>
+                        <div id="command-validation" class="command-validation"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="action-bar" id="action-bar" style="display: none;">
+                <button id="execute-btn" class="btn btn-primary btn-large">
+                    <span class="btn-icon">▶️</span>
+                    执行操作
+                </button>
+                <button id="abort-btn" class="btn btn-danger btn-large" style="display: none;">
+                    <span class="btn-icon">⏹️</span>
+                    中止执行
+                </button>
+            </div>
+
+            <div class="result-container hidden" id="result-container">
+                <div class="result-header">
+                    <h3>📋 执行结果</h3>
+                    <button id="close-result" class="btn-close">×</button>
+                </div>
+                <div class="result-content">
+                    <div class="result-command" id="result-command"></div>
+                    <pre class="result-output" id="result-output"></pre>
+                </div>
+            </div>
+
+            <div class="error-container hidden" id="error-container">
+                <div class="error-header">
+                    <span class="error-icon">❌</span>
+                    <h3>错误信息</h3>
+                </div>
+                <div class="error-content" id="error-content"></div>
+            </div>
+        </main>
+
+        <div class="modal hidden" id="script-editor-modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>📝 编辑脚本: <span id="editor-script-name"></span></h3>
+                    <button id="close-editor" class="btn-close">×</button>
+                </div>
+                <div class="modal-body">
+                    <textarea id="script-editor" class="script-editor" spellcheck="false"></textarea>
+                </div>
+                <div class="modal-footer">
+                    <button id="save-script-btn" class="btn btn-primary">💾 保存</button>
+                    <button id="cancel-edit-btn" class="btn btn-secondary">取消</button>
+                </div>
+            </div>
+        </div>
+
+        <footer class="footer">
+            <p>© 2026 TKE Kubectl 管理平台 | 安全命令白名单控制</p>
+        </footer>
+    </div>
+
+    <script src="static/app.js"></script>
+</body>
+</html>

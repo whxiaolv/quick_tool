@@ -1,0 +1,1787 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>数据库对比报告 - 20260326_095034</title>
+    <style>
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.98);
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+        }
+
+        .meta-info {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 20px;
+            border-radius: 10px;
+            display: inline-block;
+        }
+
+        .meta-info p {
+            margin: 5px 0;
+            font-size: 1rem;
+        }
+
+        section {
+            padding: 30px 40px;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        section:last-child {
+            border-bottom: none;
+        }
+
+        h2 {
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+            color: #667eea;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            border: 2px solid #dee2e6;
+        }
+
+        .stat-card h3 {
+            font-size: 2rem;
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .stat-card p {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .diff-section {
+            margin: 20px 0;
+        }
+
+        .diff-section h3 {
+            font-size: 1.3rem;
+            margin-bottom: 15px;
+            padding: 10px 15px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+        }
+
+        .table-container {
+            overflow-x: auto;
+            margin: 15px 0;
+            border-radius: 10px;
+            border: 2px solid #dee2e6;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+        }
+
+        th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        td {
+            padding: 10px 12px;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        tr:hover {
+            background: #f8f9ff;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .badge-common {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .badge-diff {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .badge-left {
+            background: #cce5ff;
+            color: #004085;
+        }
+
+        .badge-right {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .diff-value {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 5px;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 0.85rem;
+        }
+
+        .diff-left {
+            background: #ffebee;
+            color: #c62828;
+        }
+
+        .diff-right {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        .summary-box {
+            background: #fff3cd;
+            border: 2px solid #ffc107;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .summary-box h4 {
+            color: #856404;
+            margin-bottom: 10px;
+        }
+
+        .key-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .key-item {
+            background: white;
+            padding: 6px 12px;
+            border-radius: 5px;
+            font-family: monospace;
+            font-size: 0.85rem;
+            border: 1px solid #dee2e6;
+        }
+
+        .empty-message {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+            font-size: 1.1rem;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 1.8rem;
+            }
+
+            section {
+                padding: 20px;
+            }
+
+            h2 {
+                font-size: 1.4rem;
+            }
+        }
+        
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>📊 数据库对比报告</h1>
+            <div class="meta-info">
+                <p><strong>生成时间:</strong> 2026-03-26 09:50:34</p>
+                <p><strong>左表:</strong> cibn_housekeeper.AppLevel</p>
+                <p><strong>右表:</strong> cn_tvhousekeeper.AppLevel</p>
+            </div>
+        </header>
+
+        <section class="overview">
+            <h2>📈 对比概览</h2>
+            
+        <div class="stats-grid">
+            <div class="stat-card">
+                <h3>6</h3>
+                <p>总字段数</p>
+            </div>
+            <div class="stat-card">
+                <h3>6</h3>
+                <p>共有字段</p>
+            </div>
+            <div class="stat-card">
+                <h3>0</h3>
+                <p>差异字段</p>
+            </div>
+            <div class="stat-card">
+                <h3>232</h3>
+                <p>左表总数据量</p>
+            </div>
+            <div class="stat-card">
+                <h3>212</h3>
+                <p>右表总数据量</p>
+            </div>
+            <div class="stat-card">
+                <h3>164</h3>
+                <p>相同数据</p>
+            </div>
+            <div class="stat-card">
+                <h3>27</h3>
+                <p>左表独有</p>
+            </div>
+            <div class="stat-card">
+                <h3>7</h3>
+                <p>右表独有</p>
+            </div>
+            <div class="stat-card">
+                <h3>41</h3>
+                <p>差异数据</p>
+            </div>
+        </div>
+        
+        </section>
+
+        <section class="structure-diff">
+            <h2>🏗️ 结构差异</h2>
+            <div class="diff-section"><h3>字段对比</h3>
+            <div class="table-container">
+                <p style="padding: 10px; background: #d4edda; color: #155724; font-weight: 600;">
+                    ✅ 共有字段 (6 个)
+                </p>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>字段名</th>
+                            <th>类型</th>
+                            <th>允许空</th>
+                            <th>键</th>
+                            <th>默认值</th>
+                            <th>额外</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            
+                        <tr>
+                            <td><strong>applyKey</strong></td>
+                            <td>varchar(255)</td>
+                            <td>YES</td>
+                            <td></td>
+                            <td>None</td>
+                            <td></td>
+                        </tr>
+                
+                        <tr>
+                            <td><strong>applyName</strong></td>
+                            <td>varchar(255)</td>
+                            <td>YES</td>
+                            <td></td>
+                            <td>None</td>
+                            <td></td>
+                        </tr>
+                
+                        <tr>
+                            <td><strong>id</strong></td>
+                            <td>bigint(20) unsigned</td>
+                            <td>NO</td>
+                            <td>PRI</td>
+                            <td>None</td>
+                            <td>auto_increment</td>
+                        </tr>
+                
+                        <tr>
+                            <td><strong>levelId</strong></td>
+                            <td>bigint(20)</td>
+                            <td>YES</td>
+                            <td></td>
+                            <td>None</td>
+                            <td></td>
+                        </tr>
+                
+                        <tr>
+                            <td><strong>operator</strong></td>
+                            <td>varchar(255)</td>
+                            <td>YES</td>
+                            <td></td>
+                            <td>None</td>
+                            <td></td>
+                        </tr>
+                
+                        <tr>
+                            <td><strong>updateTime</strong></td>
+                            <td>datetime</td>
+                            <td>YES</td>
+                            <td></td>
+                            <td>None</td>
+                            <td></td>
+                        </tr>
+                </tbody></table></div></div><div class="diff-section"><h3>索引对比</h3>
+            <div class="table-container">
+                <p style="padding: 10px; background: #d4edda; color: #155724; font-weight: 600;">
+                    ✅ 共有索引 (1 个)
+                </p>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>索引名</th>
+                            <th>列</th>
+                            <th>唯一性</th>
+                            <th>类型</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            
+                        <tr>
+                            <td><strong>PRIMARY</strong></td>
+                            <td>id</td>
+                            <td>是</td>
+                            <td>BTREE</td>
+                        </tr>
+                </tbody></table></div></div>
+        </section>
+
+        <section class="data-diff">
+            <h2>📋 数据差异</h2>
+            
+                <div class="diff-section">
+                    <h3>✅ 相同数据 (164 条)</h3>
+                    <div class="summary-box" style="background: #d4edda; border-color: #28a745;">
+                        <h4 style="color: #155724;">ID 范围汇总</h4>
+                        <div style="background: white; padding: 15px; border-radius: 8px; font-family: monospace; font-size: 0.9rem; line-height: 1.8;">
+                            7, 32, 34-35, 41, 43, 198, 214-215, 217, 221-223, 226-232, 234-236, 238-239, 242-249, 251-261, 263-264, 266, 268-274, 277, 279-286, 288-291, 300, 302-315, 317, 320, 322, 325-326, 329-330, 332-351, 353, 356-357, 361-370, 373, 375-378, 380, 383, 385-393, 398-399, 404-427
+                        </div>
+                    </div>
+                </div>
+                
+        <div class="diff-section">
+            <h3>🔵 左表独有数据 (27 条)</h3>
+            <div class="table-container">
+                <p style="padding: 10px; background: #cce5ff; color: #004085; font-weight: 600;">
+                    🔵 左表独有数据 (27 条)
+                </p>
+                <table>
+                    <thead>
+                        <tr>
+        <th>id</th><th>applyName</th><th>applyKey</th><th>levelId</th><th>updateTime</th><th>operator</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+        <tr><td>449</td><td>高德白名单测试-允许</td><td>com.gaode.allow</td><td>169</td><td>2017-02-21 17:16:40</td><td>孙卯辰</td></tr><tr><td>442</td><td>大屏购物(52S消息接口)</td><td>com.stv.shopping:remote</td><td>169</td><td>2017-01-13 17:10:23</td><td>孙卯辰</td></tr><tr><td>496</td><td>多乐文件管理</td><td>com.duole.filemanager</td><td>39</td><td>2018-04-19 20:15:52</td><td>孙卯辰</td></tr><tr><td>489</td><td>悟空遥控</td><td>com.wukongtv.wkhelper.cj</td><td>39</td><td>2017-08-03 17:06:19</td><td>孙卯辰</td></tr><tr><td>491</td><td>直播答题</td><td>com.stv.interactlive</td><td>169</td><td>2018-02-07 16:40:49</td><td>孙卯辰</td></tr><tr><td>484</td><td>悟空遥控器</td><td>com.wukongtv.wkhelper.remoteplugin2</td><td>39</td><td>2017-08-03 11:04:52</td><td>孙卯辰</td></tr><tr><td>486</td><td>悟空遥控</td><td>com.wukongtv.wkhelper.duole</td><td>39</td><td>2017-08-03 11:45:51</td><td>孙卯辰</td></tr><tr><td>495</td><td>多乐助手</td><td>Duole</td><td>39</td><td>2018-04-19 20:15:27</td><td>孙卯辰</td></tr><tr><td>479</td><td>视频会议-林玠人</td><td>com.stv.android.meeting</td><td>169</td><td>2017-07-12 15:00:28</td><td>孙卯辰</td></tr><tr><td>497</td><td>当贝刷机-拉黑</td><td>com.tvshuaji.shuidiui</td><td>39</td><td>2018-07-19 16:16:02</td><td>孙卯辰</td></tr><tr><td>463</td><td>CIBN应用</td><td>cn.cibntv.ott</td><td>194</td><td>2017-03-03 18:02:57</td><td>孙卯辰</td></tr><tr><td>472</td><td>扁鹊服务</td><td>com.stv.monitor</td><td>170</td><td>2017-03-22 17:13:01</td><td>孙卯辰</td></tr><tr><td>481</td><td>搜狗输入法</td><td>com.sohu.inputmethod.sogou.tv</td><td>166</td><td>2017-07-14 17:26:38</td><td>孙卯辰</td></tr><tr><td>474</td><td>乐视财讯.</td><td>com.le.finance.tv</td><td>169</td><td>2017-05-12 16:15:22</td><td>孙卯辰</td></tr><tr><td>483</td><td>悟空遥控器</td><td>com.wukongtv.wkhelper.remoteplugin</td><td>39</td><td>2017-08-03 11:04:32</td><td>孙卯辰</td></tr><tr><td>492</td><td>腾讯视频-乐视合作版</td><td>com.ktcp.tvvideo</td><td>194</td><td>2018-03-26 18:35:20</td><td>孙卯辰</td></tr><tr><td>458</td><td>BSP数据上报</td><td>com.stv.reportService</td><td>170</td><td>2017-03-01 19:42:01</td><td>孙卯辰</td></tr><tr><td>476</td><td>le帐号-陈芾</td><td>com.le.leclient</td><td>169</td><td>2017-06-27 10:56:48</td><td>孙卯辰</td></tr><tr><td>494</td><td>多乐市场</td><td>com.duole.tvos.appstore</td><td>39</td><td>2018-04-17 15:02:45</td><td>孙卯辰</td></tr><tr><td>469</td><td>ELS系统服务</td><td>com.stv.commonservice</td><td>170</td><td>2017-03-22 16:53:16</td><td>孙卯辰</td></tr><tr><td>437</td><td>会员账号权限测试apk</td><td>com.account.permissiontest</td><td>185</td><td>2017-01-04 10:27:01</td><td>孙卯辰</td></tr><tr><td>446</td><td>乐视直播匹配</td><td>com.kookong.tv.livematch</td><td>191</td><td>2017-02-22 10:52:05</td><td>孙卯辰</td></tr><tr><td>455</td><td>乐购</td><td>com.le.lepay.tv</td><td>169</td><td>2017-03-16 14:42:09</td><td>李宜婧</td></tr><tr><td>466</td><td>扁鹊服务</td><td>com.stv.bq</td><td>170</td><td>2017-03-03 18:31:59</td><td>孙卯辰</td></tr><tr><td>452</td><td>高德白名单测试-禁止</td><td>com.gaode.disable</td><td>185</td><td>2017-02-21 17:17:44</td><td>孙卯辰</td></tr><tr><td>461</td><td>BSP崩溃日志抓取服务</td><td>com.stv.bsp.qccrashhandler</td><td>170</td><td>2017-03-02 15:56:47</td><td>孙卯辰</td></tr><tr><td>445</td><td>电视管家服务</td><td>com.stv.helper.service</td><td>170</td><td>2017-02-15 15:43:37</td><td>何新伟</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <div class="diff-section">
+            <h3>� 右表独有数据 (7 条)</h3>
+            <div class="table-container">
+                <p style="padding: 10px; background: #fff3cd; color: #856404; font-weight: 600;">
+                    � 右表独有数据 (7 条)
+                </p>
+                <table>
+                    <thead>
+                        <tr>
+        <th>id</th><th>applyName</th><th>applyKey</th><th>levelId</th><th>updateTime</th><th>operator</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+        <tr><td>429</td><td>display</td><td>com.qualcomm.display</td><td>170</td><td>2016-12-29 18:30:19</td><td>何新伟</td></tr><tr><td>431</td><td>app安装</td><td>com.android.packageinstaller</td><td>170</td><td>2017-01-03 17:26:16</td><td>何新伟</td></tr><tr><td>440</td><td>当贝刷机-拉黑</td><td>com.tvshuaji.shuidiui</td><td>39</td><td>2018-07-19 16:18:50</td><td>孙卯辰</td></tr><tr><td>435</td><td>扁鹊服务</td><td>com.stv.monitor</td><td>170</td><td>2017-03-22 17:16:13</td><td>孙卯辰</td></tr><tr><td>439</td><td>乐视财讯.</td><td>com.le.finance.tv</td><td>169</td><td>2017-05-12 16:25:49</td><td>孙卯辰</td></tr><tr><td>432</td><td>电视管家服务</td><td>com.stv.helper.service</td><td>170</td><td>2017-02-15 15:42:20</td><td>何新伟</td></tr><tr><td>436</td><td>扁鹊服务</td><td>com.stv.bq</td><td>170</td><td>2017-03-22 17:16:29</td><td>孙卯辰</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <div class="diff-section">
+            <h3>❌ 差异数据 (41 条)</h3>
+            <div class="scrollable-container" style="max-height: 500px; overflow-y: auto; border: 2px solid #f8d7da; border-radius: 10px; padding: 15px; background: #fff5f5;">
+        
+                <div class="diff-item" style="margin-bottom: 20px; padding: 15px; background: white; border-radius: 8px; border-left: 4px solid #dc3545;">
+                    <div style="font-weight: 600; color: #721c24; margin-bottom: 10px; padding: 8px; background: #f8d7da; border-radius: 5px;">
+                        🔑 主键: 301
+                    </div>
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <thead>
+                            <tr style="background: #f8f9fa;">
+                                <th style="padding: 8px; text-align: left; border-bottom: 2px solid #dee2e6;">字段</th>
+                                <th style="padding: 8px; text-align: left; border-bottom: 2px solid #dee2e6;">左表值</th>
+                                <th style="padding: 8px; text-align: left; border-bottom: 2px solid #dee2e6;">右表值</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+            
+                            <tr>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><strong>operator</strong></td>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><span style="background: #ffebee; color: #c62828; padding: 4px 8px; border-radius: 4px; font-family: monospace;">孙卯辰</span></td>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><span style="background: #e8f5e9; color: #2e7d32; padding: 4px 8px; border-radius: 4px; font-family: monospace;">何新伟</span></td>
+                            </tr>
+                
+                            <tr>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><strong>updateTime</strong></td>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><span style="background: #ffebee; color: #c62828; padding: 4px 8px; border-radius: 4px; font-family: monospace;">2017-02-22 16:15:50</span></td>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><span style="background: #e8f5e9; color: #2e7d32; padding: 4px 8px; border-radius: 4px; font-family: monospace;">2016-12-26 16:53:02</span></td>
+                            </tr>
+                
+                        </tbody>
+                    </table>
+                </div>
+            
+                <div class="diff-item" style="margin-bottom: 20px; padding: 15px; background: white; border-radius: 8px; border-left: 4px solid #dc3545;">
+                    <div style="font-weight: 600; color: #721c24; margin-bottom: 10px; padding: 8px; background: #f8d7da; border-radius: 5px;">
+                        🔑 主键: 319
+                    </div>
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <thead>
+                            <tr style="background: #f8f9fa;">
+                                <th style="padding: 8px; text-align: left; border-bottom: 2px solid #dee2e6;">字段</th>
+                                <th style="padding: 8px; text-align: left; border-bottom: 2px solid #dee2e6;">左表值</th>
+                                <th style="padding: 8px; text-align: left; border-bottom: 2px solid #dee2e6;">右表值</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+            
+                            <tr>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><strong>operator</strong></td>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><span style="background: #ffebee; color: #c62828; padding: 4px 8px; border-radius: 4px; font-family: monospace;">孙卯辰</span></td>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><span style="background: #e8f5e9; color: #2e7d32; padding: 4px 8px; border-radius: 4px; font-family: monospace;">何新伟</span></td>
+                            </tr>
+                
+                            <tr>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><strong>updateTime</strong></td>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><span style="background: #ffebee; color: #c62828; padding: 4px 8px; border-radius: 4px; font-family: monospace;">2017-08-07 14:33:13</span></td>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><span style="background: #e8f5e9; color: #2e7d32; padding: 4px 8px; border-radius: 4px; font-family: monospace;">2016-12-28 15:41:20</span></td>
+                            </tr>
+                
+                            <tr>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><strong>levelId</strong></td>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><span style="background: #ffebee; color: #c62828; padding: 4px 8px; border-radius: 4px; font-family: monospace;">170</span></td>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><span style="background: #e8f5e9; color: #2e7d32; padding: 4px 8px; border-radius: 4px; font-family: monospace;">171</span></td>
+                            </tr>
+                
+                        </tbody>
+                    </table>
+                </div>
+            
+                <div class="diff-item" style="margin-bottom: 20px; padding: 15px; background: white; border-radius: 8px; border-left: 4px solid #dc3545;">
+                    <div style="font-weight: 600; color: #721c24; margin-bottom: 10px; padding: 8px; background: #f8d7da; border-radius: 5px;">
+                        🔑 主键: 29
+                    </div>
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <thead>
+                            <tr style="background: #f8f9fa;">
+                                <th style="padding: 8px; text-align: left; border-bottom: 2px solid #dee2e6;">字段</th>
+                                <th style="padding: 8px; text-align: left; border-bottom: 2px solid #dee2e6;">左表值</th>
+                                <th style="padding: 8px; text-align: left; border-bottom: 2px solid #dee2e6;">右表值</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+            
+                            <tr>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><strong>operator</strong></td>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><span style="background: #ffebee; color: #c62828; padding: 4px 8px; border-radius: 4px; font-family: monospace;">孙卯辰</span></td>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><span style="background: #e8f5e9; color: #2e7d32; padding: 4px 8px; border-radius: 4px; font-family: monospace;">何新伟</span></td>
+                            </tr>
+                
+                            <tr>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><strong>updateTime</strong></td>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><span style="background: #ffebee; color: #c62828; padding: 4px 8px; border-radius: 4px; font-family: monospace;">2017-01-27 12:13:53</span></td>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><span style="background: #e8f5e9; color: #2e7d32; padding: 4px 8px; border-radius: 4px; font-family: monospace;">2016-12-21 15:07:03</span></td>
+                            </tr>
+                
+                            <tr>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><strong>levelId</strong></td>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><span style="background: #ffebee; color: #c62828; padding: 4px 8px; border-radius: 4px; font-family: monospace;">185</span></td>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><span style="background: #e8f5e9; color: #2e7d32; padding: 4px 8px; border-radius: 4px; font-family: monospace;">38</span></td>
+                            </tr>
+                
+                        </tbody>
+                    </table>
+                </div>
+            
+                <div class="diff-item" style="margin-bottom: 20px; padding: 15px; background: white; border-radius: 8px; border-left: 4px solid #dc3545;">
+                    <div style="font-weight: 600; color: #721c24; margin-bottom: 10px; padding: 8px; background: #f8d7da; border-radius: 5px;">
+                        🔑 主键: 278
+                    </div>
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <thead>
+                            <tr style="background: #f8f9fa;">
+                                <th style="padding: 8px; text-align: left; border-bottom: 2px solid #dee2e6;">字段</th>
+                                <th style="padding: 8px; text-align: left; border-bottom: 2px solid #dee2e6;">左表值</th>
+                                <th style="padding: 8px; text-align: left; border-bottom: 2px solid #dee2e6;">右表值</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+            
+                            <tr>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><strong>updateTime</strong></td>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><span style="background: #ffebee; color: #c62828; padding: 4px 8px; border-radius: 4px; font-family: monospace;">2017-02-15 16:41:39</span></td>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><span style="background: #e8f5e9; color: #2e7d32; padding: 4px 8px; border-radius: 4px; font-family: monospace;">2017-02-15 16:39:39</span></td>
+                            </tr>
+                
+                        </tbody>
+                    </table>
+                </div>
+            
+                <div class="diff-item" style="margin-bottom: 20px; padding: 15px; background: white; border-radius: 8px; border-left: 4px solid #dc3545;">
+                    <div style="font-weight: 600; color: #721c24; margin-bottom: 10px; padding: 8px; background: #f8d7da; border-radius: 5px;">
+                        🔑 主键: 287
+                    </div>
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <thead>
+                            <tr style="background: #f8f9fa;">
+                                <th style="padding: 8px; text-align: left; border-bottom: 2px solid #dee2e6;">字段</th>
+                                <th style="padding: 8px; text-align: left; border-bottom: 2px solid #dee2e6;">左表值</th>
+                                <th style="padding: 8px; text-align: left; border-bottom: 2px solid #dee2e6;">右表值</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+            
+                            <tr>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><strong>updateTime</strong></td>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><span style="background: #ffebee; color: #c62828; padding: 4px 8px; border-radius: 4px; font-family: monospace;">2017-03-16 13:45:49</span></td>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><span style="background: #e8f5e9; color: #2e7d32; padding: 4px 8px; border-radius: 4px; font-family: monospace;">2017-03-16 13:42:22</span></td>
+                            </tr>
+                
+                        </tbody>
+                    </table>
+                </div>
+            
+                <div class="diff-item" style="margin-bottom: 20px; padding: 15px; background: white; border-radius: 8px; border-left: 4px solid #dc3545;">
+                    <div style="font-weight: 600; color: #721c24; margin-bottom: 10px; padding: 8px; background: #f8d7da; border-radius: 5px;">
+                        🔑 主键: 433
+                    </div>
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <thead>
+                            <tr style="background: #f8f9fa;">
+                                <th style="padding: 8px; text-align: left; border-bottom: 2px solid #dee2e6;">字段</th>
+                                <th style="padding: 8px; text-align: left; border-bottom: 2px solid #dee2e6;">左表值</th>
+                                <th style="padding: 8px; text-align: left; border-bottom: 2px solid #dee2e6;">右表值</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+            
+                            <tr>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><strong>applyKey</strong></td>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><span style="background: #ffebee; color: #c62828; padding: 4px 8px; border-radius: 4px; font-family: monospace;">com.qualcomm.cabl</span></td>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><span style="background: #e8f5e9; color: #2e7d32; padding: 4px 8px; border-radius: 4px; font-family: monospace;">cn.cibntv.ott</span></td>
+                            </tr>
+                
+                            <tr>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><strong>updateTime</strong></td>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><span style="background: #ffebee; color: #c62828; padding: 4px 8px; border-radius: 4px; font-family: monospace;">2016-12-29 18:40:35</span></td>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><span style="background: #e8f5e9; color: #2e7d32; padding: 4px 8px; border-radius: 4px; font-family: monospace;">2017-03-21 16:22:51</span></td>
+                            </tr>
+                
+                            <tr>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><strong>levelId</strong></td>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><span style="background: #ffebee; color: #c62828; padding: 4px 8px; border-radius: 4px; font-family: monospace;">170</span></td>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><span style="background: #e8f5e9; color: #2e7d32; padding: 4px 8px; border-radius: 4px; font-family: monospace;">166</span></td>
+                            </tr>
+                
+                            <tr>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><strong>applyName</strong></td>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><span style="background: #ffebee; color: #c62828; padding: 4px 8px; border-radius: 4px; font-family: monospace;">cabl</span></td>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><span style="background: #e8f5e9; color: #2e7d32; padding: 4px 8px; border-radius: 4px; font-family: monospace;">CIBN</span></td>
+                            </tr>
+                
+                        </tbody>
+                    </table>
+                </div>
+            
+                <div class="diff-item" style="margin-bottom: 20px; padding: 15px; background: white; border-radius: 8px; border-left: 4px solid #dc3545;">
+                    <div style="font-weight: 600; color: #721c24; margin-bottom: 10px; padding: 8px; background: #f8d7da; border-radius: 5px;">
+                        🔑 主键: 401
+                    </div>
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <thead>
+                            <tr style="background: #f8f9fa;">
+                                <th style="padding: 8px; text-align: left; border-bottom: 2px solid #dee2e6;">字段</th>
+                                <th style="padding: 8px; text-align: left; border-bottom: 2px solid #dee2e6;">左表值</th>
+                                <th style="padding: 8px; text-align: left; border-bottom: 2px solid #dee2e6;">右表值</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+            
+                            <tr>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><strong>operator</strong></td>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><span style="background: #ffebee; color: #c62828; padding: 4px 8px; border-radius: 4px; font-family: monospace;">孙卯辰</span></td>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><span style="background: #e8f5e9; color: #2e7d32; padding: 4px 8px; border-radius: 4px; font-family: monospace;">何新伟</span></td>
+                            </tr>
+                
+                            <tr>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><strong>updateTime</strong></td>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><span style="background: #ffebee; color: #c62828; padding: 4px 8px; border-radius: 4px; font-family: monospace;">2018-04-18 20:45:47</span></td>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><span style="background: #e8f5e9; color: #2e7d32; padding: 4px 8px; border-radius: 4px; font-family: monospace;">2016-12-23 09:50:15</span></td>
+                            </tr>
+                
+                            <tr>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><strong>levelId</strong></td>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><span style="background: #ffebee; color: #c62828; padding: 4px 8px; border-radius: 4px; font-family: monospace;">39</span></td>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><span style="background: #e8f5e9; color: #2e7d32; padding: 4px 8px; border-radius: 4px; font-family: monospace;">185</span></td>
+                            </tr>
+                
+                        </tbody>
+                    </table>
+                </div>
+            
+                <div class="diff-item" style="margin-bottom: 20px; padding: 15px; background: white; border-radius: 8px; border-left: 4px solid #dc3545;">
+                    <div style="font-weight: 600; color: #721c24; margin-bottom: 10px; padding: 8px; background: #f8d7da; border-radius: 5px;">
+                        🔑 主键: 403
+                    </div>
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <thead>
+                            <tr style="background: #f8f9fa;">
+                                <th style="padding: 8px; text-align: left; border-bottom: 2px solid #dee2e6;">字段</th>
+                                <th style="padding: 8px; text-align: left; border-bottom: 2px solid #dee2e6;">左表值</th>
+                                <th style="padding: 8px; text-align: left; border-bottom: 2px solid #dee2e6;">右表值</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+            
+                            <tr>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><strong>operator</strong></td>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><span style="background: #ffebee; color: #c62828; padding: 4px 8px; border-radius: 4px; font-family: monospace;">孙卯辰</span></td>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><span style="background: #e8f5e9; color: #2e7d32; padding: 4px 8px; border-radius: 4px; font-family: monospace;">何新伟</span></td>
+                            </tr>
+                
+                            <tr>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><strong>updateTime</strong></td>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><span style="background: #ffebee; color: #c62828; padding: 4px 8px; border-radius: 4px; font-family: monospace;">2018-04-17 15:01:58</span></td>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><span style="background: #e8f5e9; color: #2e7d32; padding: 4px 8px; border-radius: 4px; font-family: monospace;">2016-12-23 09:50:43</span></td>
+                            </tr>
+                
+                            <tr>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><strong>levelId</strong></td>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><span style="background: #ffebee; color: #c62828; padding: 4px 8px; border-radius: 4px; font-family: monospace;">39</span></td>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><span style="background: #e8f5e9; color: #2e7d32; padding: 4px 8px; border-radius: 4px; font-family: monospace;">185</span></td>
+                            </tr>
+                
+                            <tr>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><strong>applyName</strong></td>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><span style="background: #ffebee; color: #c62828; padding: 4px 8px; border-radius: 4px; font-family: monospace;">多乐电视助手</span></td>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><span style="background: #e8f5e9; color: #2e7d32; padding: 4px 8px; border-radius: 4px; font-family: monospace;">多乐助手</span></td>
+                            </tr>
+                
+                        </tbody>
+                    </table>
+                </div>
+            
+                <div class="diff-item" style="margin-bottom: 20px; padding: 15px; background: white; border-radius: 8px; border-left: 4px solid #dc3545;">
+                    <div style="font-weight: 600; color: #721c24; margin-bottom: 10px; padding: 8px; background: #f8d7da; border-radius: 5px;">
+                        🔑 主键: 430
+                    </div>
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <thead>
+                            <tr style="background: #f8f9fa;">
+                                <th style="padding: 8px; text-align: left; border-bottom: 2px solid #dee2e6;">字段</th>
+                                <th style="padding: 8px; text-align: left; border-bottom: 2px solid #dee2e6;">左表值</th>
+                                <th style="padding: 8px; text-align: left; border-bottom: 2px solid #dee2e6;">右表值</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+            
+                            <tr>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><strong>applyKey</strong></td>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><span style="background: #ffebee; color: #c62828; padding: 4px 8px; border-radius: 4px; font-family: monospace;">com.qualcomm.display</span></td>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><span style="background: #e8f5e9; color: #2e7d32; padding: 4px 8px; border-radius: 4px; font-family: monospace;">com.qualcomm.cabl</span></td>
+                            </tr>
+                
+                            <tr>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><strong>updateTime</strong></td>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><span style="background: #ffebee; color: #c62828; padding: 4px 8px; border-radius: 4px; font-family: monospace;">2016-12-29 18:30:03</span></td>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><span style="background: #e8f5e9; color: #2e7d32; padding: 4px 8px; border-radius: 4px; font-family: monospace;">2016-12-29 18:39:57</span></td>
+                            </tr>
+                
+                            <tr>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><strong>applyName</strong></td>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><span style="background: #ffebee; color: #c62828; padding: 4px 8px; border-radius: 4px; font-family: monospace;">display</span></td>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><span style="background: #e8f5e9; color: #2e7d32; padding: 4px 8px; border-radius: 4px; font-family: monospace;">cabl</span></td>
+                            </tr>
+                
+                        </tbody>
+                    </table>
+                </div>
+            
+                <div class="diff-item" style="margin-bottom: 20px; padding: 15px; background: white; border-radius: 8px; border-left: 4px solid #dc3545;">
+                    <div style="font-weight: 600; color: #721c24; margin-bottom: 10px; padding: 8px; background: #f8d7da; border-radius: 5px;">
+                        🔑 主键: 382
+                    </div>
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <thead>
+                            <tr style="background: #f8f9fa;">
+                                <th style="padding: 8px; text-align: left; border-bottom: 2px solid #dee2e6;">字段</th>
+                                <th style="padding: 8px; text-align: left; border-bottom: 2px solid #dee2e6;">左表值</th>
+                                <th style="padding: 8px; text-align: left; border-bottom: 2px solid #dee2e6;">右表值</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+            
+                            <tr>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><strong>operator</strong></td>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><span style="background: #ffebee; color: #c62828; padding: 4px 8px; border-radius: 4px; font-family: monospace;">孙卯辰</span></td>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><span style="background: #e8f5e9; color: #2e7d32; padding: 4px 8px; border-radius: 4px; font-family: monospace;">何新伟</span></td>
+                            </tr>
+                
+                            <tr>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><strong>updateTime</strong></td>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><span style="background: #ffebee; color: #c62828; padding: 4px 8px; border-radius: 4px; font-family: monospace;">2017-01-27 12:12:29</span></td>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><span style="background: #e8f5e9; color: #2e7d32; padding: 4px 8px; border-radius: 4px; font-family: monospace;">2016-12-21 15:23:19</span></td>
+                            </tr>
+                
+                            <tr>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><strong>levelId</strong></td>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><span style="background: #ffebee; color: #c62828; padding: 4px 8px; border-radius: 4px; font-family: monospace;">185</span></td>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><span style="background: #e8f5e9; color: #2e7d32; padding: 4px 8px; border-radius: 4px; font-family: monospace;">38</span></td>
+                            </tr>
+                
+                        </tbody>
+                    </table>
+                </div>
+            
+                <div class="diff-item" style="margin-bottom: 20px; padding: 15px; background: white; border-radius: 8px; border-left: 4px solid #dc3545;">
+                    <div style="font-weight: 600; color: #721c24; margin-bottom: 10px; padding: 8px; background: #f8d7da; border-radius: 5px;">
+                        🔑 主键: 400
+                    </div>
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <thead>
+                            <tr style="background: #f8f9fa;">
+                                <th style="padding: 8px; text-align: left; border-bottom: 2px solid #dee2e6;">字段</th>
+                                <th style="padding: 8px; text-align: left; border-bottom: 2px solid #dee2e6;">左表值</th>
+                                <th style="padding: 8px; text-align: left; border-bottom: 2px solid #dee2e6;">右表值</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+            
+                            <tr>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><strong>operator</strong></td>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><span style="background: #ffebee; color: #c62828; padding: 4px 8px; border-radius: 4px; font-family: monospace;">孙卯辰</span></td>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><span style="background: #e8f5e9; color: #2e7d32; padding: 4px 8px; border-radius: 4px; font-family: monospace;">何新伟</span></td>
+                            </tr>
+                
+                            <tr>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><strong>updateTime</strong></td>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><span style="background: #ffebee; color: #c62828; padding: 4px 8px; border-radius: 4px; font-family: monospace;">2018-04-16 17:04:39</span></td>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><span style="background: #e8f5e9; color: #2e7d32; padding: 4px 8px; border-radius: 4px; font-family: monospace;">2016-12-23 09:50:00</span></td>
+                            </tr>
+                
+                            <tr>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><strong>levelId</strong></td>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><span style="background: #ffebee; color: #c62828; padding: 4px 8px; border-radius: 4px; font-family: monospace;">39</span></td>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><span style="background: #e8f5e9; color: #2e7d32; padding: 4px 8px; border-radius: 4px; font-family: monospace;">185</span></td>
+                            </tr>
+                
+                        </tbody>
+                    </table>
+                </div>
+            
+                <div class="diff-item" style="margin-bottom: 20px; padding: 15px; background: white; border-radius: 8px; border-left: 4px solid #dc3545;">
+                    <div style="font-weight: 600; color: #721c24; margin-bottom: 10px; padding: 8px; background: #f8d7da; border-radius: 5px;">
+                        🔑 主键: 384
+                    </div>
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <thead>
+                            <tr style="background: #f8f9fa;">
+                                <th style="padding: 8px; text-align: left; border-bottom: 2px solid #dee2e6;">字段</th>
+                                <th style="padding: 8px; text-align: left; border-bottom: 2px solid #dee2e6;">左表值</th>
+                                <th style="padding: 8px; text-align: left; border-bottom: 2px solid #dee2e6;">右表值</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+            
+                            <tr>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><strong>operator</strong></td>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><span style="background: #ffebee; color: #c62828; padding: 4px 8px; border-radius: 4px; font-family: monospace;">孙卯辰</span></td>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><span style="background: #e8f5e9; color: #2e7d32; padding: 4px 8px; border-radius: 4px; font-family: monospace;">何新伟</span></td>
+                            </tr>
+                
+                            <tr>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><strong>updateTime</strong></td>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><span style="background: #ffebee; color: #c62828; padding: 4px 8px; border-radius: 4px; font-family: monospace;">2017-01-27 12:13:42</span></td>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><span style="background: #e8f5e9; color: #2e7d32; padding: 4px 8px; border-radius: 4px; font-family: monospace;">2016-12-21 15:24:04</span></td>
+                            </tr>
+                
+                            <tr>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><strong>levelId</strong></td>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><span style="background: #ffebee; color: #c62828; padding: 4px 8px; border-radius: 4px; font-family: monospace;">185</span></td>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><span style="background: #e8f5e9; color: #2e7d32; padding: 4px 8px; border-radius: 4px; font-family: monospace;">38</span></td>
+                            </tr>
+                
+                        </tbody>
+                    </table>
+                </div>
+            
+                <div class="diff-item" style="margin-bottom: 20px; padding: 15px; background: white; border-radius: 8px; border-left: 4px solid #dc3545;">
+                    <div style="font-weight: 600; color: #721c24; margin-bottom: 10px; padding: 8px; background: #f8d7da; border-radius: 5px;">
+                        🔑 主键: 402
+                    </div>
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <thead>
+                            <tr style="background: #f8f9fa;">
+                                <th style="padding: 8px; text-align: left; border-bottom: 2px solid #dee2e6;">字段</th>
+                                <th style="padding: 8px; text-align: left; border-bottom: 2px solid #dee2e6;">左表值</th>
+                                <th style="padding: 8px; text-align: left; border-bottom: 2px solid #dee2e6;">右表值</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+            
+                            <tr>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><strong>operator</strong></td>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><span style="background: #ffebee; color: #c62828; padding: 4px 8px; border-radius: 4px; font-family: monospace;">孙卯辰</span></td>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><span style="background: #e8f5e9; color: #2e7d32; padding: 4px 8px; border-radius: 4px; font-family: monospace;">何新伟</span></td>
+                            </tr>
+                
+                            <tr>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><strong>updateTime</strong></td>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><span style="background: #ffebee; color: #c62828; padding: 4px 8px; border-radius: 4px; font-family: monospace;">2018-04-23 14:13:46</span></td>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><span style="background: #e8f5e9; color: #2e7d32; padding: 4px 8px; border-radius: 4px; font-family: monospace;">2016-12-23 09:50:29</span></td>
+                            </tr>
+                
+                            <tr>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><strong>levelId</strong></td>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><span style="background: #ffebee; color: #c62828; padding: 4px 8px; border-radius: 4px; font-family: monospace;">39</span></td>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><span style="background: #e8f5e9; color: #2e7d32; padding: 4px 8px; border-radius: 4px; font-family: monospace;">185</span></td>
+                            </tr>
+                
+                        </tbody>
+                    </table>
+                </div>
+            
+                <div class="diff-item" style="margin-bottom: 20px; padding: 15px; background: white; border-radius: 8px; border-left: 4px solid #dc3545;">
+                    <div style="font-weight: 600; color: #721c24; margin-bottom: 10px; padding: 8px; background: #f8d7da; border-radius: 5px;">
+                        🔑 主键: 240
+                    </div>
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <thead>
+                            <tr style="background: #f8f9fa;">
+                                <th style="padding: 8px; text-align: left; border-bottom: 2px solid #dee2e6;">字段</th>
+                                <th style="padding: 8px; text-align: left; border-bottom: 2px solid #dee2e6;">左表值</th>
+                                <th style="padding: 8px; text-align: left; border-bottom: 2px solid #dee2e6;">右表值</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+            
+                            <tr>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><strong>updateTime</strong></td>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><span style="background: #ffebee; color: #c62828; padding: 4px 8px; border-radius: 4px; font-family: monospace;">2017-05-04 20:04:06</span></td>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><span style="background: #e8f5e9; color: #2e7d32; padding: 4px 8px; border-radius: 4px; font-family: monospace;">2016-12-21 13:15:45</span></td>
+                            </tr>
+                
+                        </tbody>
+                    </table>
+                </div>
+            
+                <div class="diff-item" style="margin-bottom: 20px; padding: 15px; background: white; border-radius: 8px; border-left: 4px solid #dc3545;">
+                    <div style="font-weight: 600; color: #721c24; margin-bottom: 10px; padding: 8px; background: #f8d7da; border-radius: 5px;">
+                        🔑 主键: 233
+                    </div>
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <thead>
+                            <tr style="background: #f8f9fa;">
+                                <th style="padding: 8px; text-align: left; border-bottom: 2px solid #dee2e6;">字段</th>
+                                <th style="padding: 8px; text-align: left; border-bottom: 2px solid #dee2e6;">左表值</th>
+                                <th style="padding: 8px; text-align: left; border-bottom: 2px solid #dee2e6;">右表值</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+            
+                            <tr>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><strong>operator</strong></td>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><span style="background: #ffebee; color: #c62828; padding: 4px 8px; border-radius: 4px; font-family: monospace;">孙卯辰</span></td>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><span style="background: #e8f5e9; color: #2e7d32; padding: 4px 8px; border-radius: 4px; font-family: monospace;">何新伟</span></td>
+                            </tr>
+                
+                            <tr>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><strong>updateTime</strong></td>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><span style="background: #ffebee; color: #c62828; padding: 4px 8px; border-radius: 4px; font-family: monospace;">2017-06-28 18:55:10</span></td>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><span style="background: #e8f5e9; color: #2e7d32; padding: 4px 8px; border-radius: 4px; font-family: monospace;">2016-12-21 13:21:13</span></td>
+                            </tr>
+                
+                            <tr>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><strong>levelId</strong></td>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><span style="background: #ffebee; color: #c62828; padding: 4px 8px; border-radius: 4px; font-family: monospace;">191</span></td>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><span style="background: #e8f5e9; color: #2e7d32; padding: 4px 8px; border-radius: 4px; font-family: monospace;">169</span></td>
+                            </tr>
+                
+                        </tbody>
+                    </table>
+                </div>
+            
+                <div class="diff-item" style="margin-bottom: 20px; padding: 15px; background: white; border-radius: 8px; border-left: 4px solid #dc3545;">
+                    <div style="font-weight: 600; color: #721c24; margin-bottom: 10px; padding: 8px; background: #f8d7da; border-radius: 5px;">
+                        🔑 主键: 379
+                    </div>
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <thead>
+                            <tr style="background: #f8f9fa;">
+                                <th style="padding: 8px; text-align: left; border-bottom: 2px solid #dee2e6;">字段</th>
+                                <th style="padding: 8px; text-align: left; border-bottom: 2px solid #dee2e6;">左表值</th>
+                                <th style="padding: 8px; text-align: left; border-bottom: 2px solid #dee2e6;">右表值</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+            
+                            <tr>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><strong>operator</strong></td>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><span style="background: #ffebee; color: #c62828; padding: 4px 8px; border-radius: 4px; font-family: monospace;">孙卯辰</span></td>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><span style="background: #e8f5e9; color: #2e7d32; padding: 4px 8px; border-radius: 4px; font-family: monospace;">何新伟</span></td>
+                            </tr>
+                
+                            <tr>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><strong>updateTime</strong></td>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><span style="background: #ffebee; color: #c62828; padding: 4px 8px; border-radius: 4px; font-family: monospace;">2017-01-27 12:15:22</span></td>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><span style="background: #e8f5e9; color: #2e7d32; padding: 4px 8px; border-radius: 4px; font-family: monospace;">2016-12-21 15:22:29</span></td>
+                            </tr>
+                
+                            <tr>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><strong>levelId</strong></td>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><span style="background: #ffebee; color: #c62828; padding: 4px 8px; border-radius: 4px; font-family: monospace;">185</span></td>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><span style="background: #e8f5e9; color: #2e7d32; padding: 4px 8px; border-radius: 4px; font-family: monospace;">38</span></td>
+                            </tr>
+                
+                        </tbody>
+                    </table>
+                </div>
+            
+                <div class="diff-item" style="margin-bottom: 20px; padding: 15px; background: white; border-radius: 8px; border-left: 4px solid #dc3545;">
+                    <div style="font-weight: 600; color: #721c24; margin-bottom: 10px; padding: 8px; background: #f8d7da; border-radius: 5px;">
+                        🔑 主键: 354
+                    </div>
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <thead>
+                            <tr style="background: #f8f9fa;">
+                                <th style="padding: 8px; text-align: left; border-bottom: 2px solid #dee2e6;">字段</th>
+                                <th style="padding: 8px; text-align: left; border-bottom: 2px solid #dee2e6;">左表值</th>
+                                <th style="padding: 8px; text-align: left; border-bottom: 2px solid #dee2e6;">右表值</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+            
+                            <tr>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><strong>updateTime</strong></td>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><span style="background: #ffebee; color: #c62828; padding: 4px 8px; border-radius: 4px; font-family: monospace;">2017-01-16 10:49:01</span></td>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><span style="background: #e8f5e9; color: #2e7d32; padding: 4px 8px; border-radius: 4px; font-family: monospace;">2017-01-16 10:48:50</span></td>
+                            </tr>
+                
+                        </tbody>
+                    </table>
+                </div>
+            
+                <div class="diff-item" style="margin-bottom: 20px; padding: 15px; background: white; border-radius: 8px; border-left: 4px solid #dc3545;">
+                    <div style="font-weight: 600; color: #721c24; margin-bottom: 10px; padding: 8px; background: #f8d7da; border-radius: 5px;">
+                        🔑 主键: 372
+                    </div>
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <thead>
+                            <tr style="background: #f8f9fa;">
+                                <th style="padding: 8px; text-align: left; border-bottom: 2px solid #dee2e6;">字段</th>
+                                <th style="padding: 8px; text-align: left; border-bottom: 2px solid #dee2e6;">左表值</th>
+                                <th style="padding: 8px; text-align: left; border-bottom: 2px solid #dee2e6;">右表值</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+            
+                            <tr>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><strong>updateTime</strong></td>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><span style="background: #ffebee; color: #c62828; padding: 4px 8px; border-radius: 4px; font-family: monospace;">2017-06-22 10:37:05</span></td>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><span style="background: #e8f5e9; color: #2e7d32; padding: 4px 8px; border-radius: 4px; font-family: monospace;">2017-05-09 10:46:37</span></td>
+                            </tr>
+                
+                            <tr>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><strong>levelId</strong></td>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><span style="background: #ffebee; color: #c62828; padding: 4px 8px; border-radius: 4px; font-family: monospace;">39</span></td>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><span style="background: #e8f5e9; color: #2e7d32; padding: 4px 8px; border-radius: 4px; font-family: monospace;">185</span></td>
+                            </tr>
+                
+                        </tbody>
+                    </table>
+                </div>
+            
+                <div class="diff-item" style="margin-bottom: 20px; padding: 15px; background: white; border-radius: 8px; border-left: 4px solid #dc3545;">
+                    <div style="font-weight: 600; color: #721c24; margin-bottom: 10px; padding: 8px; background: #f8d7da; border-radius: 5px;">
+                        🔑 主键: 381
+                    </div>
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <thead>
+                            <tr style="background: #f8f9fa;">
+                                <th style="padding: 8px; text-align: left; border-bottom: 2px solid #dee2e6;">字段</th>
+                                <th style="padding: 8px; text-align: left; border-bottom: 2px solid #dee2e6;">左表值</th>
+                                <th style="padding: 8px; text-align: left; border-bottom: 2px solid #dee2e6;">右表值</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+            
+                            <tr>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><strong>operator</strong></td>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><span style="background: #ffebee; color: #c62828; padding: 4px 8px; border-radius: 4px; font-family: monospace;">孙卯辰</span></td>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><span style="background: #e8f5e9; color: #2e7d32; padding: 4px 8px; border-radius: 4px; font-family: monospace;">何新伟</span></td>
+                            </tr>
+                
+                            <tr>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><strong>updateTime</strong></td>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><span style="background: #ffebee; color: #c62828; padding: 4px 8px; border-radius: 4px; font-family: monospace;">2017-01-27 12:15:37</span></td>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><span style="background: #e8f5e9; color: #2e7d32; padding: 4px 8px; border-radius: 4px; font-family: monospace;">2016-12-21 15:23:04</span></td>
+                            </tr>
+                
+                            <tr>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><strong>levelId</strong></td>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><span style="background: #ffebee; color: #c62828; padding: 4px 8px; border-radius: 4px; font-family: monospace;">185</span></td>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><span style="background: #e8f5e9; color: #2e7d32; padding: 4px 8px; border-radius: 4px; font-family: monospace;">38</span></td>
+                            </tr>
+                
+                            <tr>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><strong>applyName</strong></td>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><span style="background: #ffebee; color: #c62828; padding: 4px 8px; border-radius: 4px; font-family: monospace;">泰捷</span></td>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><span style="background: #e8f5e9; color: #2e7d32; padding: 4px 8px; border-radius: 4px; font-family: monospace;">com.togic.livevideo</span></td>
+                            </tr>
+                
+                        </tbody>
+                    </table>
+                </div>
+            
+                <div class="diff-item" style="margin-bottom: 20px; padding: 15px; background: white; border-radius: 8px; border-left: 4px solid #dc3545;">
+                    <div style="font-weight: 600; color: #721c24; margin-bottom: 10px; padding: 8px; background: #f8d7da; border-radius: 5px;">
+                        🔑 主键: 219
+                    </div>
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <thead>
+                            <tr style="background: #f8f9fa;">
+                                <th style="padding: 8px; text-align: left; border-bottom: 2px solid #dee2e6;">字段</th>
+                                <th style="padding: 8px; text-align: left; border-bottom: 2px solid #dee2e6;">左表值</th>
+                                <th style="padding: 8px; text-align: left; border-bottom: 2px solid #dee2e6;">右表值</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+            
+                            <tr>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><strong>operator</strong></td>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><span style="background: #ffebee; color: #c62828; padding: 4px 8px; border-radius: 4px; font-family: monospace;">孙卯辰</span></td>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><span style="background: #e8f5e9; color: #2e7d32; padding: 4px 8px; border-radius: 4px; font-family: monospace;">何新伟</span></td>
+                            </tr>
+                
+                            <tr>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><strong>updateTime</strong></td>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><span style="background: #ffebee; color: #c62828; padding: 4px 8px; border-radius: 4px; font-family: monospace;">2018-04-20 19:20:24</span></td>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><span style="background: #e8f5e9; color: #2e7d32; padding: 4px 8px; border-radius: 4px; font-family: monospace;">2016-12-21 13:19:02</span></td>
+                            </tr>
+                
+                        </tbody>
+                    </table>
+                </div>
+            
+                <div class="diff-item" style="margin-bottom: 20px; padding: 15px; background: white; border-radius: 8px; border-left: 4px solid #dc3545;">
+                    <div style="font-weight: 600; color: #721c24; margin-bottom: 10px; padding: 8px; background: #f8d7da; border-radius: 5px;">
+                        🔑 主键: 237
+                    </div>
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <thead>
+                            <tr style="background: #f8f9fa;">
+                                <th style="padding: 8px; text-align: left; border-bottom: 2px solid #dee2e6;">字段</th>
+                                <th style="padding: 8px; text-align: left; border-bottom: 2px solid #dee2e6;">左表值</th>
+                                <th style="padding: 8px; text-align: left; border-bottom: 2px solid #dee2e6;">右表值</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+            
+                            <tr>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><strong>operator</strong></td>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><span style="background: #ffebee; color: #c62828; padding: 4px 8px; border-radius: 4px; font-family: monospace;">何新伟</span></td>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><span style="background: #e8f5e9; color: #2e7d32; padding: 4px 8px; border-radius: 4px; font-family: monospace;">李宜婧</span></td>
+                            </tr>
+                
+                            <tr>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><strong>updateTime</strong></td>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><span style="background: #ffebee; color: #c62828; padding: 4px 8px; border-radius: 4px; font-family: monospace;">2017-02-15 16:41:26</span></td>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><span style="background: #e8f5e9; color: #2e7d32; padding: 4px 8px; border-radius: 4px; font-family: monospace;">2017-03-16 14:43:23</span></td>
+                            </tr>
+                
+                        </tbody>
+                    </table>
+                </div>
+            
+                <div class="diff-item" style="margin-bottom: 20px; padding: 15px; background: white; border-radius: 8px; border-left: 4px solid #dc3545;">
+                    <div style="font-weight: 600; color: #721c24; margin-bottom: 10px; padding: 8px; background: #f8d7da; border-radius: 5px;">
+                        🔑 主键: 374
+                    </div>
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <thead>
+                            <tr style="background: #f8f9fa;">
+                                <th style="padding: 8px; text-align: left; border-bottom: 2px solid #dee2e6;">字段</th>
+                                <th style="padding: 8px; text-align: left; border-bottom: 2px solid #dee2e6;">左表值</th>
+                                <th style="padding: 8px; text-align: left; border-bottom: 2px solid #dee2e6;">右表值</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+            
+                            <tr>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><strong>operator</strong></td>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><span style="background: #ffebee; color: #c62828; padding: 4px 8px; border-radius: 4px; font-family: monospace;">孙卯辰</span></td>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><span style="background: #e8f5e9; color: #2e7d32; padding: 4px 8px; border-radius: 4px; font-family: monospace;">何新伟</span></td>
+                            </tr>
+                
+                            <tr>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><strong>updateTime</strong></td>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><span style="background: #ffebee; color: #c62828; padding: 4px 8px; border-radius: 4px; font-family: monospace;">2017-01-27 12:13:06</span></td>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><span style="background: #e8f5e9; color: #2e7d32; padding: 4px 8px; border-radius: 4px; font-family: monospace;">2016-12-21 15:21:24</span></td>
+                            </tr>
+                
+                            <tr>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><strong>levelId</strong></td>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><span style="background: #ffebee; color: #c62828; padding: 4px 8px; border-radius: 4px; font-family: monospace;">185</span></td>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><span style="background: #e8f5e9; color: #2e7d32; padding: 4px 8px; border-radius: 4px; font-family: monospace;">38</span></td>
+                            </tr>
+                
+                        </tbody>
+                    </table>
+                </div>
+            
+                <div class="diff-item" style="margin-bottom: 20px; padding: 15px; background: white; border-radius: 8px; border-left: 4px solid #dc3545;">
+                    <div style="font-weight: 600; color: #721c24; margin-bottom: 10px; padding: 8px; background: #f8d7da; border-radius: 5px;">
+                        🔑 主键: 358
+                    </div>
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <thead>
+                            <tr style="background: #f8f9fa;">
+                                <th style="padding: 8px; text-align: left; border-bottom: 2px solid #dee2e6;">字段</th>
+                                <th style="padding: 8px; text-align: left; border-bottom: 2px solid #dee2e6;">左表值</th>
+                                <th style="padding: 8px; text-align: left; border-bottom: 2px solid #dee2e6;">右表值</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+            
+                            <tr>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><strong>operator</strong></td>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><span style="background: #ffebee; color: #c62828; padding: 4px 8px; border-radius: 4px; font-family: monospace;">孙卯辰</span></td>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><span style="background: #e8f5e9; color: #2e7d32; padding: 4px 8px; border-radius: 4px; font-family: monospace;">何新伟</span></td>
+                            </tr>
+                
+                            <tr>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><strong>updateTime</strong></td>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><span style="background: #ffebee; color: #c62828; padding: 4px 8px; border-radius: 4px; font-family: monospace;">2017-01-27 12:13:21</span></td>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><span style="background: #e8f5e9; color: #2e7d32; padding: 4px 8px; border-radius: 4px; font-family: monospace;">2016-12-21 15:16:42</span></td>
+                            </tr>
+                
+                            <tr>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><strong>levelId</strong></td>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><span style="background: #ffebee; color: #c62828; padding: 4px 8px; border-radius: 4px; font-family: monospace;">185</span></td>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><span style="background: #e8f5e9; color: #2e7d32; padding: 4px 8px; border-radius: 4px; font-family: monospace;">38</span></td>
+                            </tr>
+                
+                        </tbody>
+                    </table>
+                </div>
+            
+                <div class="diff-item" style="margin-bottom: 20px; padding: 15px; background: white; border-radius: 8px; border-left: 4px solid #dc3545;">
+                    <div style="font-weight: 600; color: #721c24; margin-bottom: 10px; padding: 8px; background: #f8d7da; border-radius: 5px;">
+                        🔑 主键: 77
+                    </div>
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <thead>
+                            <tr style="background: #f8f9fa;">
+                                <th style="padding: 8px; text-align: left; border-bottom: 2px solid #dee2e6;">字段</th>
+                                <th style="padding: 8px; text-align: left; border-bottom: 2px solid #dee2e6;">左表值</th>
+                                <th style="padding: 8px; text-align: left; border-bottom: 2px solid #dee2e6;">右表值</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+            
+                            <tr>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><strong>operator</strong></td>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><span style="background: #ffebee; color: #c62828; padding: 4px 8px; border-radius: 4px; font-family: monospace;">孙卯辰</span></td>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><span style="background: #e8f5e9; color: #2e7d32; padding: 4px 8px; border-radius: 4px; font-family: monospace;">何新伟</span></td>
+                            </tr>
+                
+                            <tr>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><strong>updateTime</strong></td>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><span style="background: #ffebee; color: #c62828; padding: 4px 8px; border-radius: 4px; font-family: monospace;">2017-02-22 16:17:31</span></td>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><span style="background: #e8f5e9; color: #2e7d32; padding: 4px 8px; border-radius: 4px; font-family: monospace;">2016-12-21 13:17:06</span></td>
+                            </tr>
+                
+                            <tr>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><strong>levelId</strong></td>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><span style="background: #ffebee; color: #c62828; padding: 4px 8px; border-radius: 4px; font-family: monospace;">191</span></td>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><span style="background: #e8f5e9; color: #2e7d32; padding: 4px 8px; border-radius: 4px; font-family: monospace;">169</span></td>
+                            </tr>
+                
+                        </tbody>
+                    </table>
+                </div>
+            
+                <div class="diff-item" style="margin-bottom: 20px; padding: 15px; background: white; border-radius: 8px; border-left: 4px solid #dc3545;">
+                    <div style="font-weight: 600; color: #721c24; margin-bottom: 10px; padding: 8px; background: #f8d7da; border-radius: 5px;">
+                        🔑 主键: 360
+                    </div>
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <thead>
+                            <tr style="background: #f8f9fa;">
+                                <th style="padding: 8px; text-align: left; border-bottom: 2px solid #dee2e6;">字段</th>
+                                <th style="padding: 8px; text-align: left; border-bottom: 2px solid #dee2e6;">左表值</th>
+                                <th style="padding: 8px; text-align: left; border-bottom: 2px solid #dee2e6;">右表值</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+            
+                            <tr>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><strong>operator</strong></td>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><span style="background: #ffebee; color: #c62828; padding: 4px 8px; border-radius: 4px; font-family: monospace;">孙卯辰</span></td>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><span style="background: #e8f5e9; color: #2e7d32; padding: 4px 8px; border-radius: 4px; font-family: monospace;">何新伟</span></td>
+                            </tr>
+                
+                            <tr>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><strong>updateTime</strong></td>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><span style="background: #ffebee; color: #c62828; padding: 4px 8px; border-radius: 4px; font-family: monospace;">2017-01-27 12:15:06</span></td>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><span style="background: #e8f5e9; color: #2e7d32; padding: 4px 8px; border-radius: 4px; font-family: monospace;">2016-12-21 15:17:07</span></td>
+                            </tr>
+                
+                            <tr>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><strong>levelId</strong></td>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><span style="background: #ffebee; color: #c62828; padding: 4px 8px; border-radius: 4px; font-family: monospace;">185</span></td>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><span style="background: #e8f5e9; color: #2e7d32; padding: 4px 8px; border-radius: 4px; font-family: monospace;">38</span></td>
+                            </tr>
+                
+                        </tbody>
+                    </table>
+                </div>
+            
+                <div class="diff-item" style="margin-bottom: 20px; padding: 15px; background: white; border-radius: 8px; border-left: 4px solid #dc3545;">
+                    <div style="font-weight: 600; color: #721c24; margin-bottom: 10px; padding: 8px; background: #f8d7da; border-radius: 5px;">
+                        🔑 主键: 371
+                    </div>
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <thead>
+                            <tr style="background: #f8f9fa;">
+                                <th style="padding: 8px; text-align: left; border-bottom: 2px solid #dee2e6;">字段</th>
+                                <th style="padding: 8px; text-align: left; border-bottom: 2px solid #dee2e6;">左表值</th>
+                                <th style="padding: 8px; text-align: left; border-bottom: 2px solid #dee2e6;">右表值</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+            
+                            <tr>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><strong>updateTime</strong></td>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><span style="background: #ffebee; color: #c62828; padding: 4px 8px; border-radius: 4px; font-family: monospace;">2017-05-24 09:47:41</span></td>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><span style="background: #e8f5e9; color: #2e7d32; padding: 4px 8px; border-radius: 4px; font-family: monospace;">2017-05-24 09:55:53</span></td>
+                            </tr>
+                
+                        </tbody>
+                    </table>
+                </div>
+            
+                <div class="diff-item" style="margin-bottom: 20px; padding: 15px; background: white; border-radius: 8px; border-left: 4px solid #dc3545;">
+                    <div style="font-weight: 600; color: #721c24; margin-bottom: 10px; padding: 8px; background: #f8d7da; border-radius: 5px;">
+                        🔑 主键: 328
+                    </div>
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <thead>
+                            <tr style="background: #f8f9fa;">
+                                <th style="padding: 8px; text-align: left; border-bottom: 2px solid #dee2e6;">字段</th>
+                                <th style="padding: 8px; text-align: left; border-bottom: 2px solid #dee2e6;">左表值</th>
+                                <th style="padding: 8px; text-align: left; border-bottom: 2px solid #dee2e6;">右表值</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+            
+                            <tr>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><strong>updateTime</strong></td>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><span style="background: #ffebee; color: #c62828; padding: 4px 8px; border-radius: 4px; font-family: monospace;">2017-05-15 18:20:57</span></td>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><span style="background: #e8f5e9; color: #2e7d32; padding: 4px 8px; border-radius: 4px; font-family: monospace;">2017-05-15 18:24:49</span></td>
+                            </tr>
+                
+                        </tbody>
+                    </table>
+                </div>
+            
+                <div class="diff-item" style="margin-bottom: 20px; padding: 15px; background: white; border-radius: 8px; border-left: 4px solid #dc3545;">
+                    <div style="font-weight: 600; color: #721c24; margin-bottom: 10px; padding: 8px; background: #f8d7da; border-radius: 5px;">
+                        🔑 主键: 355
+                    </div>
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <thead>
+                            <tr style="background: #f8f9fa;">
+                                <th style="padding: 8px; text-align: left; border-bottom: 2px solid #dee2e6;">字段</th>
+                                <th style="padding: 8px; text-align: left; border-bottom: 2px solid #dee2e6;">左表值</th>
+                                <th style="padding: 8px; text-align: left; border-bottom: 2px solid #dee2e6;">右表值</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+            
+                            <tr>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><strong>operator</strong></td>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><span style="background: #ffebee; color: #c62828; padding: 4px 8px; border-radius: 4px; font-family: monospace;">孙卯辰</span></td>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><span style="background: #e8f5e9; color: #2e7d32; padding: 4px 8px; border-radius: 4px; font-family: monospace;">何新伟</span></td>
+                            </tr>
+                
+                            <tr>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><strong>updateTime</strong></td>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><span style="background: #ffebee; color: #c62828; padding: 4px 8px; border-radius: 4px; font-family: monospace;">2017-01-27 12:14:28</span></td>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><span style="background: #e8f5e9; color: #2e7d32; padding: 4px 8px; border-radius: 4px; font-family: monospace;">2016-12-21 15:16:02</span></td>
+                            </tr>
+                
+                            <tr>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><strong>levelId</strong></td>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><span style="background: #ffebee; color: #c62828; padding: 4px 8px; border-radius: 4px; font-family: monospace;">185</span></td>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><span style="background: #e8f5e9; color: #2e7d32; padding: 4px 8px; border-radius: 4px; font-family: monospace;">38</span></td>
+                            </tr>
+                
+                        </tbody>
+                    </table>
+                </div>
+            
+                <div class="diff-item" style="margin-bottom: 20px; padding: 15px; background: white; border-radius: 8px; border-left: 4px solid #dc3545;">
+                    <div style="font-weight: 600; color: #721c24; margin-bottom: 10px; padding: 8px; background: #f8d7da; border-radius: 5px;">
+                        🔑 主键: 321
+                    </div>
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <thead>
+                            <tr style="background: #f8f9fa;">
+                                <th style="padding: 8px; text-align: left; border-bottom: 2px solid #dee2e6;">字段</th>
+                                <th style="padding: 8px; text-align: left; border-bottom: 2px solid #dee2e6;">左表值</th>
+                                <th style="padding: 8px; text-align: left; border-bottom: 2px solid #dee2e6;">右表值</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+            
+                            <tr>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><strong>updateTime</strong></td>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><span style="background: #ffebee; color: #c62828; padding: 4px 8px; border-radius: 4px; font-family: monospace;">2016-12-28 15:44:25</span></td>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><span style="background: #e8f5e9; color: #2e7d32; padding: 4px 8px; border-radius: 4px; font-family: monospace;">2016-12-28 15:48:44</span></td>
+                            </tr>
+                
+                        </tbody>
+                    </table>
+                </div>
+            
+                <div class="diff-item" style="margin-bottom: 20px; padding: 15px; background: white; border-radius: 8px; border-left: 4px solid #dc3545;">
+                    <div style="font-weight: 600; color: #721c24; margin-bottom: 10px; padding: 8px; background: #f8d7da; border-radius: 5px;">
+                        🔑 主键: 220
+                    </div>
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <thead>
+                            <tr style="background: #f8f9fa;">
+                                <th style="padding: 8px; text-align: left; border-bottom: 2px solid #dee2e6;">字段</th>
+                                <th style="padding: 8px; text-align: left; border-bottom: 2px solid #dee2e6;">左表值</th>
+                                <th style="padding: 8px; text-align: left; border-bottom: 2px solid #dee2e6;">右表值</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+            
+                            <tr>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><strong>operator</strong></td>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><span style="background: #ffebee; color: #c62828; padding: 4px 8px; border-radius: 4px; font-family: monospace;">孙卯辰</span></td>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><span style="background: #e8f5e9; color: #2e7d32; padding: 4px 8px; border-radius: 4px; font-family: monospace;">何新伟</span></td>
+                            </tr>
+                
+                            <tr>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><strong>updateTime</strong></td>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><span style="background: #ffebee; color: #c62828; padding: 4px 8px; border-radius: 4px; font-family: monospace;">2018-04-20 19:20:03</span></td>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><span style="background: #e8f5e9; color: #2e7d32; padding: 4px 8px; border-radius: 4px; font-family: monospace;">2016-12-21 13:19:09</span></td>
+                            </tr>
+                
+                        </tbody>
+                    </table>
+                </div>
+            
+                <div class="diff-item" style="margin-bottom: 20px; padding: 15px; background: white; border-radius: 8px; border-left: 4px solid #dc3545;">
+                    <div style="font-weight: 600; color: #721c24; margin-bottom: 10px; padding: 8px; background: #f8d7da; border-radius: 5px;">
+                        🔑 主键: 323
+                    </div>
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <thead>
+                            <tr style="background: #f8f9fa;">
+                                <th style="padding: 8px; text-align: left; border-bottom: 2px solid #dee2e6;">字段</th>
+                                <th style="padding: 8px; text-align: left; border-bottom: 2px solid #dee2e6;">左表值</th>
+                                <th style="padding: 8px; text-align: left; border-bottom: 2px solid #dee2e6;">右表值</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+            
+                            <tr>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><strong>operator</strong></td>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><span style="background: #ffebee; color: #c62828; padding: 4px 8px; border-radius: 4px; font-family: monospace;">孙卯辰</span></td>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><span style="background: #e8f5e9; color: #2e7d32; padding: 4px 8px; border-radius: 4px; font-family: monospace;">何新伟</span></td>
+                            </tr>
+                
+                            <tr>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><strong>updateTime</strong></td>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><span style="background: #ffebee; color: #c62828; padding: 4px 8px; border-radius: 4px; font-family: monospace;">2018-05-08 17:14:11</span></td>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><span style="background: #e8f5e9; color: #2e7d32; padding: 4px 8px; border-radius: 4px; font-family: monospace;">2016-12-21 13:07:40</span></td>
+                            </tr>
+                
+                            <tr>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><strong>levelId</strong></td>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><span style="background: #ffebee; color: #c62828; padding: 4px 8px; border-radius: 4px; font-family: monospace;">170</span></td>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><span style="background: #e8f5e9; color: #2e7d32; padding: 4px 8px; border-radius: 4px; font-family: monospace;">171</span></td>
+                            </tr>
+                
+                        </tbody>
+                    </table>
+                </div>
+            
+                <div class="diff-item" style="margin-bottom: 20px; padding: 15px; background: white; border-radius: 8px; border-left: 4px solid #dc3545;">
+                    <div style="font-weight: 600; color: #721c24; margin-bottom: 10px; padding: 8px; background: #f8d7da; border-radius: 5px;">
+                        🔑 主键: 359
+                    </div>
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <thead>
+                            <tr style="background: #f8f9fa;">
+                                <th style="padding: 8px; text-align: left; border-bottom: 2px solid #dee2e6;">字段</th>
+                                <th style="padding: 8px; text-align: left; border-bottom: 2px solid #dee2e6;">左表值</th>
+                                <th style="padding: 8px; text-align: left; border-bottom: 2px solid #dee2e6;">右表值</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+            
+                            <tr>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><strong>operator</strong></td>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><span style="background: #ffebee; color: #c62828; padding: 4px 8px; border-radius: 4px; font-family: monospace;">孙卯辰</span></td>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><span style="background: #e8f5e9; color: #2e7d32; padding: 4px 8px; border-radius: 4px; font-family: monospace;">何新伟</span></td>
+                            </tr>
+                
+                            <tr>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><strong>updateTime</strong></td>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><span style="background: #ffebee; color: #c62828; padding: 4px 8px; border-radius: 4px; font-family: monospace;">2017-01-27 12:16:52</span></td>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><span style="background: #e8f5e9; color: #2e7d32; padding: 4px 8px; border-radius: 4px; font-family: monospace;">2016-12-21 15:16:54</span></td>
+                            </tr>
+                
+                            <tr>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><strong>levelId</strong></td>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><span style="background: #ffebee; color: #c62828; padding: 4px 8px; border-radius: 4px; font-family: monospace;">185</span></td>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><span style="background: #e8f5e9; color: #2e7d32; padding: 4px 8px; border-radius: 4px; font-family: monospace;">38</span></td>
+                            </tr>
+                
+                        </tbody>
+                    </table>
+                </div>
+            
+                <div class="diff-item" style="margin-bottom: 20px; padding: 15px; background: white; border-radius: 8px; border-left: 4px solid #dc3545;">
+                    <div style="font-weight: 600; color: #721c24; margin-bottom: 10px; padding: 8px; background: #f8d7da; border-radius: 5px;">
+                        🔑 主键: 224
+                    </div>
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <thead>
+                            <tr style="background: #f8f9fa;">
+                                <th style="padding: 8px; text-align: left; border-bottom: 2px solid #dee2e6;">字段</th>
+                                <th style="padding: 8px; text-align: left; border-bottom: 2px solid #dee2e6;">左表值</th>
+                                <th style="padding: 8px; text-align: left; border-bottom: 2px solid #dee2e6;">右表值</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+            
+                            <tr>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><strong>updateTime</strong></td>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><span style="background: #ffebee; color: #c62828; padding: 4px 8px; border-radius: 4px; font-family: monospace;">2018-04-24 12:01:15</span></td>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><span style="background: #e8f5e9; color: #2e7d32; padding: 4px 8px; border-radius: 4px; font-family: monospace;">2018-05-16 13:47:38</span></td>
+                            </tr>
+                
+                            <tr>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><strong>levelId</strong></td>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><span style="background: #ffebee; color: #c62828; padding: 4px 8px; border-radius: 4px; font-family: monospace;">39</span></td>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><span style="background: #e8f5e9; color: #2e7d32; padding: 4px 8px; border-radius: 4px; font-family: monospace;">188</span></td>
+                            </tr>
+                
+                        </tbody>
+                    </table>
+                </div>
+            
+                <div class="diff-item" style="margin-bottom: 20px; padding: 15px; background: white; border-radius: 8px; border-left: 4px solid #dc3545;">
+                    <div style="font-weight: 600; color: #721c24; margin-bottom: 10px; padding: 8px; background: #f8d7da; border-radius: 5px;">
+                        🔑 主键: 352
+                    </div>
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <thead>
+                            <tr style="background: #f8f9fa;">
+                                <th style="padding: 8px; text-align: left; border-bottom: 2px solid #dee2e6;">字段</th>
+                                <th style="padding: 8px; text-align: left; border-bottom: 2px solid #dee2e6;">左表值</th>
+                                <th style="padding: 8px; text-align: left; border-bottom: 2px solid #dee2e6;">右表值</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+            
+                            <tr>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><strong>operator</strong></td>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><span style="background: #ffebee; color: #c62828; padding: 4px 8px; border-radius: 4px; font-family: monospace;">孙卯辰</span></td>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><span style="background: #e8f5e9; color: #2e7d32; padding: 4px 8px; border-radius: 4px; font-family: monospace;">何新伟</span></td>
+                            </tr>
+                
+                            <tr>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><strong>updateTime</strong></td>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><span style="background: #ffebee; color: #c62828; padding: 4px 8px; border-radius: 4px; font-family: monospace;">2018-04-27 17:14:14</span></td>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><span style="background: #e8f5e9; color: #2e7d32; padding: 4px 8px; border-radius: 4px; font-family: monospace;">2016-12-21 15:15:16</span></td>
+                            </tr>
+                
+                            <tr>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><strong>levelId</strong></td>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><span style="background: #ffebee; color: #c62828; padding: 4px 8px; border-radius: 4px; font-family: monospace;">39</span></td>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><span style="background: #e8f5e9; color: #2e7d32; padding: 4px 8px; border-radius: 4px; font-family: monospace;">38</span></td>
+                            </tr>
+                
+                        </tbody>
+                    </table>
+                </div>
+            
+                <div class="diff-item" style="margin-bottom: 20px; padding: 15px; background: white; border-radius: 8px; border-left: 4px solid #dc3545;">
+                    <div style="font-weight: 600; color: #721c24; margin-bottom: 10px; padding: 8px; background: #f8d7da; border-radius: 5px;">
+                        🔑 主键: 80
+                    </div>
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <thead>
+                            <tr style="background: #f8f9fa;">
+                                <th style="padding: 8px; text-align: left; border-bottom: 2px solid #dee2e6;">字段</th>
+                                <th style="padding: 8px; text-align: left; border-bottom: 2px solid #dee2e6;">左表值</th>
+                                <th style="padding: 8px; text-align: left; border-bottom: 2px solid #dee2e6;">右表值</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+            
+                            <tr>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><strong>updateTime</strong></td>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><span style="background: #ffebee; color: #c62828; padding: 4px 8px; border-radius: 4px; font-family: monospace;">2017-02-17 11:33:28</span></td>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><span style="background: #e8f5e9; color: #2e7d32; padding: 4px 8px; border-radius: 4px; font-family: monospace;">2017-02-17 11:32:37</span></td>
+                            </tr>
+                
+                        </tbody>
+                    </table>
+                </div>
+            
+                <div class="diff-item" style="margin-bottom: 20px; padding: 15px; background: white; border-radius: 8px; border-left: 4px solid #dc3545;">
+                    <div style="font-weight: 600; color: #721c24; margin-bottom: 10px; padding: 8px; background: #f8d7da; border-radius: 5px;">
+                        🔑 主键: 327
+                    </div>
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <thead>
+                            <tr style="background: #f8f9fa;">
+                                <th style="padding: 8px; text-align: left; border-bottom: 2px solid #dee2e6;">字段</th>
+                                <th style="padding: 8px; text-align: left; border-bottom: 2px solid #dee2e6;">左表值</th>
+                                <th style="padding: 8px; text-align: left; border-bottom: 2px solid #dee2e6;">右表值</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+            
+                            <tr>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><strong>updateTime</strong></td>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><span style="background: #ffebee; color: #c62828; padding: 4px 8px; border-radius: 4px; font-family: monospace;">2016-12-28 15:46:10</span></td>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><span style="background: #e8f5e9; color: #2e7d32; padding: 4px 8px; border-radius: 4px; font-family: monospace;">2016-12-28 15:48:25</span></td>
+                            </tr>
+                
+                        </tbody>
+                    </table>
+                </div>
+            
+                <div class="diff-item" style="margin-bottom: 20px; padding: 15px; background: white; border-radius: 8px; border-left: 4px solid #dc3545;">
+                    <div style="font-weight: 600; color: #721c24; margin-bottom: 10px; padding: 8px; background: #f8d7da; border-radius: 5px;">
+                        🔑 主键: 194
+                    </div>
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <thead>
+                            <tr style="background: #f8f9fa;">
+                                <th style="padding: 8px; text-align: left; border-bottom: 2px solid #dee2e6;">字段</th>
+                                <th style="padding: 8px; text-align: left; border-bottom: 2px solid #dee2e6;">左表值</th>
+                                <th style="padding: 8px; text-align: left; border-bottom: 2px solid #dee2e6;">右表值</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+            
+                            <tr>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><strong>operator</strong></td>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><span style="background: #ffebee; color: #c62828; padding: 4px 8px; border-radius: 4px; font-family: monospace;">孙卯辰</span></td>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><span style="background: #e8f5e9; color: #2e7d32; padding: 4px 8px; border-radius: 4px; font-family: monospace;">何新伟</span></td>
+                            </tr>
+                
+                            <tr>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><strong>updateTime</strong></td>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><span style="background: #ffebee; color: #c62828; padding: 4px 8px; border-radius: 4px; font-family: monospace;">2017-01-27 12:17:34</span></td>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><span style="background: #e8f5e9; color: #2e7d32; padding: 4px 8px; border-radius: 4px; font-family: monospace;">2016-12-21 15:07:37</span></td>
+                            </tr>
+                
+                            <tr>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><strong>levelId</strong></td>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><span style="background: #ffebee; color: #c62828; padding: 4px 8px; border-radius: 4px; font-family: monospace;">185</span></td>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><span style="background: #e8f5e9; color: #2e7d32; padding: 4px 8px; border-radius: 4px; font-family: monospace;">38</span></td>
+                            </tr>
+                
+                        </tbody>
+                    </table>
+                </div>
+            
+                <div class="diff-item" style="margin-bottom: 20px; padding: 15px; background: white; border-radius: 8px; border-left: 4px solid #dc3545;">
+                    <div style="font-weight: 600; color: #721c24; margin-bottom: 10px; padding: 8px; background: #f8d7da; border-radius: 5px;">
+                        🔑 主键: 331
+                    </div>
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <thead>
+                            <tr style="background: #f8f9fa;">
+                                <th style="padding: 8px; text-align: left; border-bottom: 2px solid #dee2e6;">字段</th>
+                                <th style="padding: 8px; text-align: left; border-bottom: 2px solid #dee2e6;">左表值</th>
+                                <th style="padding: 8px; text-align: left; border-bottom: 2px solid #dee2e6;">右表值</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+            
+                            <tr>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><strong>operator</strong></td>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><span style="background: #ffebee; color: #c62828; padding: 4px 8px; border-radius: 4px; font-family: monospace;">孙卯辰</span></td>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><span style="background: #e8f5e9; color: #2e7d32; padding: 4px 8px; border-radius: 4px; font-family: monospace;">何新伟</span></td>
+                            </tr>
+                
+                            <tr>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><strong>updateTime</strong></td>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><span style="background: #ffebee; color: #c62828; padding: 4px 8px; border-radius: 4px; font-family: monospace;">2017-02-28 19:39:57</span></td>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><span style="background: #e8f5e9; color: #2e7d32; padding: 4px 8px; border-radius: 4px; font-family: monospace;">2016-12-22 09:42:10</span></td>
+                            </tr>
+                
+                            <tr>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><strong>levelId</strong></td>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><span style="background: #ffebee; color: #c62828; padding: 4px 8px; border-radius: 4px; font-family: monospace;">171</span></td>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><span style="background: #e8f5e9; color: #2e7d32; padding: 4px 8px; border-radius: 4px; font-family: monospace;">169</span></td>
+                            </tr>
+                
+                        </tbody>
+                    </table>
+                </div>
+            
+                <div class="diff-item" style="margin-bottom: 20px; padding: 15px; background: white; border-radius: 8px; border-left: 4px solid #dc3545;">
+                    <div style="font-weight: 600; color: #721c24; margin-bottom: 10px; padding: 8px; background: #f8d7da; border-radius: 5px;">
+                        🔑 主键: 434
+                    </div>
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <thead>
+                            <tr style="background: #f8f9fa;">
+                                <th style="padding: 8px; text-align: left; border-bottom: 2px solid #dee2e6;">字段</th>
+                                <th style="padding: 8px; text-align: left; border-bottom: 2px solid #dee2e6;">左表值</th>
+                                <th style="padding: 8px; text-align: left; border-bottom: 2px solid #dee2e6;">右表值</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+            
+                            <tr>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><strong>operator</strong></td>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><span style="background: #ffebee; color: #c62828; padding: 4px 8px; border-radius: 4px; font-family: monospace;">何新伟</span></td>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><span style="background: #e8f5e9; color: #2e7d32; padding: 4px 8px; border-radius: 4px; font-family: monospace;">孙卯辰</span></td>
+                            </tr>
+                
+                            <tr>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><strong>applyKey</strong></td>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><span style="background: #ffebee; color: #c62828; padding: 4px 8px; border-radius: 4px; font-family: monospace;">com.android.packageinstaller</span></td>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><span style="background: #e8f5e9; color: #2e7d32; padding: 4px 8px; border-radius: 4px; font-family: monospace;">com.stv.commonservice</span></td>
+                            </tr>
+                
+                            <tr>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><strong>updateTime</strong></td>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><span style="background: #ffebee; color: #c62828; padding: 4px 8px; border-radius: 4px; font-family: monospace;">2017-01-03 17:27:11</span></td>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><span style="background: #e8f5e9; color: #2e7d32; padding: 4px 8px; border-radius: 4px; font-family: monospace;">2017-03-22 17:15:54</span></td>
+                            </tr>
+                
+                            <tr>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><strong>applyName</strong></td>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><span style="background: #ffebee; color: #c62828; padding: 4px 8px; border-radius: 4px; font-family: monospace;">app安装</span></td>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><span style="background: #e8f5e9; color: #2e7d32; padding: 4px 8px; border-radius: 4px; font-family: monospace;">ELS系统服务</span></td>
+                            </tr>
+                
+                        </tbody>
+                    </table>
+                </div>
+            
+                <div class="diff-item" style="margin-bottom: 20px; padding: 15px; background: white; border-radius: 8px; border-left: 4px solid #dc3545;">
+                    <div style="font-weight: 600; color: #721c24; margin-bottom: 10px; padding: 8px; background: #f8d7da; border-radius: 5px;">
+                        🔑 主键: 324
+                    </div>
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <thead>
+                            <tr style="background: #f8f9fa;">
+                                <th style="padding: 8px; text-align: left; border-bottom: 2px solid #dee2e6;">字段</th>
+                                <th style="padding: 8px; text-align: left; border-bottom: 2px solid #dee2e6;">左表值</th>
+                                <th style="padding: 8px; text-align: left; border-bottom: 2px solid #dee2e6;">右表值</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+            
+                            <tr>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><strong>updateTime</strong></td>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><span style="background: #ffebee; color: #c62828; padding: 4px 8px; border-radius: 4px; font-family: monospace;">2016-12-28 15:45:28</span></td>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><span style="background: #e8f5e9; color: #2e7d32; padding: 4px 8px; border-radius: 4px; font-family: monospace;">2016-12-28 15:48:35</span></td>
+                            </tr>
+                
+                        </tbody>
+                    </table>
+                </div>
+            
+                <div class="diff-item" style="margin-bottom: 20px; padding: 15px; background: white; border-radius: 8px; border-left: 4px solid #dc3545;">
+                    <div style="font-weight: 600; color: #721c24; margin-bottom: 10px; padding: 8px; background: #f8d7da; border-radius: 5px;">
+                        🔑 主键: 299
+                    </div>
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <thead>
+                            <tr style="background: #f8f9fa;">
+                                <th style="padding: 8px; text-align: left; border-bottom: 2px solid #dee2e6;">字段</th>
+                                <th style="padding: 8px; text-align: left; border-bottom: 2px solid #dee2e6;">左表值</th>
+                                <th style="padding: 8px; text-align: left; border-bottom: 2px solid #dee2e6;">右表值</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+            
+                            <tr>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><strong>updateTime</strong></td>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><span style="background: #ffebee; color: #c62828; padding: 4px 8px; border-radius: 4px; font-family: monospace;">2017-01-16 19:15:30</span></td>
+                                <td style="padding: 8px; border-bottom: 1px solid #e9ecef;"><span style="background: #e8f5e9; color: #2e7d32; padding: 4px 8px; border-radius: 4px; font-family: monospace;">2017-01-16 19:15:18</span></td>
+                            </tr>
+                
+                        </tbody>
+                    </table>
+                </div>
+            
+            </div>
+        </div>
+        
+        </section>
+    </div>
+</body>
+</html>

@@ -1,0 +1,61 @@
+{
+  "title": "Quick Tool - 快捷工具平台",
+  "description": "统一的工具管理平台，支持多种功能模块",
+  "modules": [
+    {
+      "id": "tke",
+      "name": "TKE 管理",
+      "description": "腾讯云 TKE 集群管理工具",
+      "icon": "🚀",
+      "path": "/modules/tke",
+      "children": [
+        {
+          "id": "kubectl_script",
+          "name": "Kubectl 脚本执行",
+          "description": "在 Pod 中执行脚本和命令",
+          "icon": "📜",
+          "path": "/modules/tke/kubectl_script"
+        },
+        {
+          "id": "kubectl_select",
+          "name": "Kubectl 查询信息",
+          "description": "查询 tke 集群/Deployment/Pods 信息",
+          "icon": "📜",
+          "path": "/modules/tke/kubectl_select"
+        }
+      ]
+    },
+    {
+      "id": "mysql",
+      "name": "MYSQL 管理",
+      "description": "MYSQL 管理工具",
+      "icon": "🚀",
+      "path": "/modules/mysql",
+      "children": [
+        {
+          "id": "mysql_diff",
+          "name": "MYSQL 数据库差异对比",
+          "description": "对比两个 MYSQL 数据库的差异，包括表结构和数据",
+          "icon": "📜",
+          "path": "/modules/mysql/mysql_diff"
+        }
+      ]
+    },
+    {
+      "id": "letv",
+      "name": "letv 信息管理",
+      "description": "letv 信息管理工具",
+      "icon": "🚀",
+      "path": "/modules/letv",
+      "children": [
+        {
+          "id": "quick_api",
+          "name": "letv 常用api",
+          "description": "常用api查询",
+          "icon": "📜",
+          "path": "/modules/letv/quick_api"
+        }
+      ]
+    }
+  ]
+}

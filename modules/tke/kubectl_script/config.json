@@ -1,0 +1,43 @@
+{
+  "forbidden_commands": [
+    "rm",
+    "rmdir",
+    "del",
+    "mv",
+    "cp",
+    "chmod",
+    "chown",
+    "kill",
+    "killall",
+    "pkill",
+    "systemctl",
+    "service",
+    "initctl",
+    "iptables",
+    "ip",
+    "ifconfig",
+    "useradd",
+    "userdel",
+    "passwd",
+    "apt",
+    "yum",
+    "apk",
+    "pip",
+    "npm",
+    "reboot",
+    "shutdown",
+    "halt"
+  ],
+  "clusters": [
+    {
+      "id": "cls-ll9vckkf",
+      "name": "cls-ll9vckkf",
+      "namespaces": [
+        "ns2-upgrade",
+        "ns2-scloud",
+        "ns2-scloud-old",
+        "ns2-uc-test"
+      ]
+    }
+  ]
+}

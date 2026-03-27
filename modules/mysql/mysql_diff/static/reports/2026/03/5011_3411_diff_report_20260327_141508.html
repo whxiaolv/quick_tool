@@ -1,0 +1,1523 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MySQL数据库对比报告</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+        .header .time {
+            opacity: 0.8;
+            font-size: 14px;
+        }
+        .content {
+            padding: 30px;
+        }
+        .section {
+            margin-bottom: 30px;
+        }
+        .section-title {
+            font-size: 20px;
+            color: #1e3c72;
+            border-bottom: 3px solid #1e3c72;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+        }
+        .stat-card.left-db {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+        }
+        .stat-card.right-db {
+            background: linear-gradient(135deg, #ee0979 0%, #ff6a00 100%);
+        }
+        .stat-card .label {
+            font-size: 14px;
+            opacity: 0.9;
+            margin-bottom: 5px;
+        }
+        .stat-card .value {
+            font-size: 28px;
+            font-weight: bold;
+        }
+        .unique-tables {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .unique-tables .box {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 20px;
+        }
+        .unique-tables .box h3 {
+            color: #495057;
+            margin-bottom: 15px;
+            font-size: 16px;
+        }
+        .unique-tables .box.left-db h3 {
+            color: #11998e;
+        }
+        .unique-tables .box.right-db h3 {
+            color: #ee0979;
+        }
+        .unique-tables ul {
+            list-style: none;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        .unique-tables li {
+            padding: 8px 12px;
+            background: white;
+            margin-bottom: 5px;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+        .table-container {
+            overflow-x: auto;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+        th {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            padding: 15px 12px;
+            text-align: left;
+            font-weight: 600;
+            position: sticky;
+            top: 0;
+        }
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #e9ecef;
+            vertical-align: top;
+        }
+        tr:hover {
+            background: #f8f9fa;
+        }
+        .table-name {
+            font-weight: 600;
+            color: #1e3c72;
+            min-width: 150px;
+        }
+        .db-cell {
+            min-width: 250px;
+        }
+        .db-cell.left-db {
+            border-left: 4px solid #11998e;
+        }
+        .db-cell.right-db {
+            border-left: 4px solid #ee0979;
+        }
+        .row-count {
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+        }
+        .update-time {
+            font-size: 12px;
+            color: #666;
+            margin-top: 5px;
+        }
+        .no-update {
+            color: #999;
+            font-style: italic;
+        }
+        .table-not-exist {
+            color: #dc3545;
+            font-style: italic;
+        }
+        .diff-highlight {
+            background: #fff3cd;
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+        .footer {
+            text-align: center;
+            padding: 20px;
+            background: #f8f9fa;
+            color: #6c757d;
+            font-size: 14px;
+        }
+        @media (max-width: 768px) {
+            .unique-tables {
+                grid-template-columns: 1fr;
+            }
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📊 MySQL数据库对比报告</h1>
+            <div class="time">生成时间: 2026-03-27 14:15:08</div>
+        </div>
+        <div class="content">
+            <div class="section">
+                <div class="stats-grid">
+                    <div class="stat-card left-db">
+                        <div class="label">左侧数据库</div>
+                        <div class="value">2</div>
+                        <div class="label">cibn_lekey</div>
+                    </div>
+                    <div class="stat-card right-db">
+                        <div class="label">右侧数据库</div>
+                        <div class="value">127</div>
+                        <div class="label">iptv</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="label">共有表</div>
+                        <div class="value">2</div>
+                    </div>
+                </div>
+            </div>
+            <div class="section">
+                <div class="unique-tables">
+                    <div class="box right-db">
+                        <h3>📁 右侧数据库独有表 (125个)</h3>
+                        <ul><li>APIFilter</li><li>Admin</li><li>AdminRole</li><li>AdminRoleMember</li><li>ApkUpgrade</li><li>ApkUpgradeIndex</li><li>ApkUpgradePlan</li><li>AppBuiltIn</li><li>AppDeskClass</li><li>AppDeskIcon</li><li>AppDeskIconFile</li><li>AppDownloadLogs</li><li>AppDownloadSet</li><li>AppIcon</li><li>AppKeyInfo</li><li>AppLevel</li><li>AppQRPic</li><li>ApplicationBlackList</li><li>ApplicationWhitelist</li><li>Authority</li><li>BootOverSea</li><li>BootOverSeaOTT</li><li>Box</li><li>BoxActive</li><li>BoxAuthLog</li><li>BoxConfig</li><li>BoxConfigCode</li><li>BoxConfigRelation</li><li>BoxGroup</li><li>BoxGroupType</li><li>BoxMode</li><li>BoxNotBackGroup</li><li>BoxParamDick</li><li>BoxProfile</li><li>BoxPurchaseOrder</li><li>BoxSeller</li><li>CaboxProgram</li><li>CaboxProgramMatch</li><li>CaboxTv</li><li>CalendarPic</li><li>Card</li><li>CardCategory</li><li>Channel</li><li>ChannelCategory</li><li>ChannelPushInfo</li><li>ChannelPushInfoShowTime</li><li>Channel_pd</li><li>ClearPath</li><li>DemandVideoType</li><li>DeskIcon</li><li>DeskPosters</li><li>DeskTVIcon</li><li>DeviceOnline</li><li>Holiday</li><li>Honor</li><li>ImageClass</li><li>ImageInfo</li><li>IncrementPkg</li><li>IptvPartner</li><li>LeSoInfo</li><li>LiveRecommend</li><li>LiveRules</li><li>LogoutLog</li><li>MacCheckLog</li><li>MemberShip</li><li>Menu</li><li>Message</li><li>MessageType</li><li>MobileActive</li><li>MobileAssistant</li><li>MobileAssistantApk</li><li>Navigator</li><li>NavigatorCategory</li><li>NewMessage</li><li>NewMessageType</li><li>OpLog</li><li>ParamInfo</li><li>PartneredBox</li><li>PlayUrlSet</li><li>Posters</li><li>Program</li><li>ProgramCategory</li><li>ProgramSChannel</li><li>ProgramSource</li><li>ProgramVideoRate</li><li>QRCodeLog</li><li>RoleMenuMember</li><li>SMSProfile</li><li>ScreenSavers</li><li>Shop</li><li>SmsMac</li><li>StorageTemp</li><li>Terminal</li><li>ThemePack</li><li>ThemePackCategory</li><li>ThemePackFile</li><li>Tmp_Box</li><li>TvChannel</li><li>Upgrade</li><li>UpgradeConditionCode</li><li>UpgradeOpCode</li><li>UpgradePlan</li><li>UpgradePlanCondition</li><li>UpgradeTransVer</li><li>User</li><li>UserApplication</li><li>UserCookie</li><li>UserDevice</li><li>UserExpend2</li><li>UserFeedback</li><li>UserInfoByMac</li><li>UserMac</li><li>UserMacLogin</li><li>UserMacPwd</li><li>VideoOnDemand</li><li>VideoOnDemandCategory</li><li>Warehouse</li><li>WeatherAreaCode</li><li>carousel_imgs</li><li>euiapp</li><li>euiapp_sdk</li><li>euiauth</li><li>euisdk</li><li>euisdk_user</li><li>tmp_boxGroupInfo</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="section">
+                <h2 class="section-title">📋 表数据量对比详情</h2>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>表名</th>
+                                <th>cibn_lekey (左侧)</th>
+                                <th>iptv (右侧)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="table-name">APIFilter</td>
+                                <td class="db-cell left-db">
+                    <div class="table-not-exist">表不存在</div>
+                                </td>
+                                <td class="db-cell right-db">
+                    <div class="row-count">2 条数据</div>
+                    <div class="update-time no-update">没有更新字段</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="table-name">Admin</td>
+                                <td class="db-cell left-db">
+                    <div class="table-not-exist">表不存在</div>
+                                </td>
+                                <td class="db-cell right-db">
+                    <div class="row-count">391 条数据</div>
+                    <div class="update-time">最近更新: 2016-12-07 17:14:03</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="table-name">AdminRole</td>
+                                <td class="db-cell left-db">
+                    <div class="table-not-exist">表不存在</div>
+                                </td>
+                                <td class="db-cell right-db">
+                    <div class="row-count">133 条数据</div>
+                    <div class="update-time">最近更新: 2016-09-20 18:06:50</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="table-name">AdminRoleMember</td>
+                                <td class="db-cell left-db">
+                    <div class="table-not-exist">表不存在</div>
+                                </td>
+                                <td class="db-cell right-db">
+                    <div class="row-count">744 条数据</div>
+                    <div class="update-time no-update">没有更新字段</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="table-name">ApkUpgrade</td>
+                                <td class="db-cell left-db">
+                    <div class="table-not-exist">表不存在</div>
+                                </td>
+                                <td class="db-cell right-db">
+                    <div class="row-count">575 条数据</div>
+                    <div class="update-time">最近更新: 2016-09-19 19:30:47</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="table-name">ApkUpgradeIndex</td>
+                                <td class="db-cell left-db">
+                    <div class="table-not-exist">表不存在</div>
+                                </td>
+                                <td class="db-cell right-db">
+                    <div class="row-count">1216 条数据</div>
+                    <div class="update-time no-update">没有更新字段</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="table-name">ApkUpgradePlan</td>
+                                <td class="db-cell left-db">
+                    <div class="table-not-exist">表不存在</div>
+                                </td>
+                                <td class="db-cell right-db">
+                    <div class="row-count">856 条数据</div>
+                    <div class="update-time">最近更新: 2016-09-18 16:56:55</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="table-name">AppBuiltIn</td>
+                                <td class="db-cell left-db">
+                    <div class="table-not-exist">表不存在</div>
+                                </td>
+                                <td class="db-cell right-db">
+                    <div class="row-count">16 条数据</div>
+                    <div class="update-time">最近更新: 2015-03-04 16:19:01</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="table-name">AppDeskClass</td>
+                                <td class="db-cell left-db">
+                    <div class="table-not-exist">表不存在</div>
+                                </td>
+                                <td class="db-cell right-db">
+                    <div class="row-count">0 条数据</div>
+                    <div class="update-time no-update">无更新时间数据</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="table-name">AppDeskIcon</td>
+                                <td class="db-cell left-db">
+                    <div class="table-not-exist">表不存在</div>
+                                </td>
+                                <td class="db-cell right-db">
+                    <div class="row-count">1 条数据</div>
+                    <div class="update-time">最近更新: 2014-05-13 10:41:51</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="table-name">AppDeskIconFile</td>
+                                <td class="db-cell left-db">
+                    <div class="table-not-exist">表不存在</div>
+                                </td>
+                                <td class="db-cell right-db">
+                    <div class="row-count">1 条数据</div>
+                    <div class="update-time">最近更新: 2015-01-08 17:26:39</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="table-name">AppDownloadLogs</td>
+                                <td class="db-cell left-db">
+                    <div class="table-not-exist">表不存在</div>
+                                </td>
+                                <td class="db-cell right-db">
+                    <div class="row-count">0 条数据</div>
+                    <div class="update-time no-update">无更新时间数据</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="table-name">AppDownloadSet</td>
+                                <td class="db-cell left-db">
+                    <div class="table-not-exist">表不存在</div>
+                                </td>
+                                <td class="db-cell right-db">
+                    <div class="row-count">0 条数据</div>
+                    <div class="update-time no-update">无更新时间数据</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="table-name">AppIcon</td>
+                                <td class="db-cell left-db">
+                    <div class="table-not-exist">表不存在</div>
+                                </td>
+                                <td class="db-cell right-db">
+                    <div class="row-count">1 条数据</div>
+                    <div class="update-time">最近更新: 2015-06-08 15:56:42</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="table-name">AppKeyInfo</td>
+                                <td class="db-cell left-db">
+                    <div class="table-not-exist">表不存在</div>
+                                </td>
+                                <td class="db-cell right-db">
+                    <div class="row-count">2 条数据</div>
+                    <div class="update-time">最近更新: 2016-04-22 14:22:42</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="table-name">AppLevel</td>
+                                <td class="db-cell left-db">
+                    <div class="table-not-exist">表不存在</div>
+                                </td>
+                                <td class="db-cell right-db">
+                    <div class="row-count">210 条数据</div>
+                    <div class="update-time">最近更新: 2017-03-22 17:16:29</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="table-name">AppQRPic</td>
+                                <td class="db-cell left-db">
+                    <div class="table-not-exist">表不存在</div>
+                                </td>
+                                <td class="db-cell right-db">
+                    <div class="row-count">3 条数据</div>
+                    <div class="update-time">最近更新: 2016-06-07 16:28:27</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="table-name">AppShortIcon</td>
+                                <td class="db-cell left-db">
+                    <div class="row-count">0 条数据</div>
+                    <div class="update-time no-update">无更新时间数据</div>
+                                </td>
+                                <td class="db-cell right-db">
+                    <div class="row-count">0 条数据</div>
+                    <div class="update-time no-update">无更新时间数据</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="table-name">ApplicationBlackList</td>
+                                <td class="db-cell left-db">
+                    <div class="table-not-exist">表不存在</div>
+                                </td>
+                                <td class="db-cell right-db">
+                    <div class="row-count">90 条数据</div>
+                    <div class="update-time">最近更新: 2016-06-14 16:05:32</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="table-name">ApplicationWhitelist</td>
+                                <td class="db-cell left-db">
+                    <div class="table-not-exist">表不存在</div>
+                                </td>
+                                <td class="db-cell right-db">
+                    <div class="row-count">50 条数据</div>
+                    <div class="update-time">最近更新: 2016-01-08 12:41:47</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="table-name">Authority</td>
+                                <td class="db-cell left-db">
+                    <div class="table-not-exist">表不存在</div>
+                                </td>
+                                <td class="db-cell right-db">
+                    <div class="row-count">7 条数据</div>
+                    <div class="update-time">最近更新: 2016-12-23 10:06:43</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="table-name">BootOverSea</td>
+                                <td class="db-cell left-db">
+                    <div class="table-not-exist">表不存在</div>
+                                </td>
+                                <td class="db-cell right-db">
+                    <div class="row-count">1202273 条数据</div>
+                    <div class="update-time no-update">没有更新字段</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="table-name">BootOverSeaOTT</td>
+                                <td class="db-cell left-db">
+                    <div class="table-not-exist">表不存在</div>
+                                </td>
+                                <td class="db-cell right-db">
+                    <div class="row-count">343339 条数据</div>
+                    <div class="update-time no-update">没有更新字段</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="table-name">Box</td>
+                                <td class="db-cell left-db">
+                    <div class="table-not-exist">表不存在</div>
+                                </td>
+                                <td class="db-cell right-db">
+                    <div class="row-count">8262647 条数据</div>
+                    <div class="update-time">最近更新: 2016-05-27 21:05:27</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="table-name">BoxActive</td>
+                                <td class="db-cell left-db">
+                    <div class="table-not-exist">表不存在</div>
+                                </td>
+                                <td class="db-cell right-db">
+                    <div class="row-count">223858 条数据</div>
+                    <div class="update-time">最近更新: 2016-01-25 16:37:21</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="table-name">BoxAuthLog</td>
+                                <td class="db-cell left-db">
+                    <div class="table-not-exist">表不存在</div>
+                                </td>
+                                <td class="db-cell right-db">
+                    <div class="row-count">501700 条数据</div>
+                    <div class="update-time">最近更新: 2012-07-10 20:00:54</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="table-name">BoxConfig</td>
+                                <td class="db-cell left-db">
+                    <div class="table-not-exist">表不存在</div>
+                                </td>
+                                <td class="db-cell right-db">
+                    <div class="row-count">16 条数据</div>
+                    <div class="update-time">最近更新: 2014-07-08 13:50:40</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="table-name">BoxConfigCode</td>
+                                <td class="db-cell left-db">
+                    <div class="table-not-exist">表不存在</div>
+                                </td>
+                                <td class="db-cell right-db">
+                    <div class="row-count">157 条数据</div>
+                    <div class="update-time">最近更新: 2015-03-03 14:59:59</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="table-name">BoxConfigRelation</td>
+                                <td class="db-cell left-db">
+                    <div class="table-not-exist">表不存在</div>
+                                </td>
+                                <td class="db-cell right-db">
+                    <div class="row-count">942 条数据</div>
+                    <div class="update-time no-update">没有更新字段</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="table-name">BoxGroup</td>
+                                <td class="db-cell left-db">
+                    <div class="table-not-exist">表不存在</div>
+                                </td>
+                                <td class="db-cell right-db">
+                    <div class="row-count">873 条数据</div>
+                    <div class="update-time">最近更新: 2016-05-07 22:08:29</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="table-name">BoxGroupType</td>
+                                <td class="db-cell left-db">
+                    <div class="table-not-exist">表不存在</div>
+                                </td>
+                                <td class="db-cell right-db">
+                    <div class="row-count">8 条数据</div>
+                    <div class="update-time">最近更新: 2016-01-14 17:27:49</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="table-name">BoxMode</td>
+                                <td class="db-cell left-db">
+                    <div class="table-not-exist">表不存在</div>
+                                </td>
+                                <td class="db-cell right-db">
+                    <div class="row-count">105 条数据</div>
+                    <div class="update-time">最近更新: 2016-04-28 19:06:21</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="table-name">BoxNotBackGroup</td>
+                                <td class="db-cell left-db">
+                    <div class="table-not-exist">表不存在</div>
+                                </td>
+                                <td class="db-cell right-db">
+                    <div class="row-count">534 条数据</div>
+                    <div class="update-time">最近更新: 2015-01-20 10:00:00</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="table-name">BoxParamDick</td>
+                                <td class="db-cell left-db">
+                    <div class="table-not-exist">表不存在</div>
+                                </td>
+                                <td class="db-cell right-db">
+                    <div class="row-count">8 条数据</div>
+                    <div class="update-time no-update">无更新时间数据</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="table-name">BoxProfile</td>
+                                <td class="db-cell left-db">
+                    <div class="table-not-exist">表不存在</div>
+                                </td>
+                                <td class="db-cell right-db">
+                    <div class="row-count">855 条数据</div>
+                    <div class="update-time">最近更新: 2016-04-06 19:17:53</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="table-name">BoxPurchaseOrder</td>
+                                <td class="db-cell left-db">
+                    <div class="table-not-exist">表不存在</div>
+                                </td>
+                                <td class="db-cell right-db">
+                    <div class="row-count">17172 条数据</div>
+                    <div class="update-time">最近更新: 2012-07-10 21:56:29</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="table-name">BoxSeller</td>
+                                <td class="db-cell left-db">
+                    <div class="table-not-exist">表不存在</div>
+                                </td>
+                                <td class="db-cell right-db">
+                    <div class="row-count">1 条数据</div>
+                    <div class="update-time">最近更新: 2011-10-15 16:13:14</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="table-name">CaboxProgram</td>
+                                <td class="db-cell left-db">
+                    <div class="table-not-exist">表不存在</div>
+                                </td>
+                                <td class="db-cell right-db">
+                    <div class="row-count">88108 条数据</div>
+                    <div class="update-time">最近更新: 2015-07-20 10:36:06</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="table-name">CaboxProgramMatch</td>
+                                <td class="db-cell left-db">
+                    <div class="table-not-exist">表不存在</div>
+                                </td>
+                                <td class="db-cell right-db">
+                    <div class="row-count">2425 条数据</div>
+                    <div class="update-time no-update">没有更新字段</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="table-name">CaboxTv</td>
+                                <td class="db-cell left-db">
+                    <div class="table-not-exist">表不存在</div>
+                                </td>
+                                <td class="db-cell right-db">
+                    <div class="row-count">409 条数据</div>
+                    <div class="update-time">最近更新: 2015-07-20 10:35:29</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="table-name">CalendarPic</td>
+                                <td class="db-cell left-db">
+                    <div class="table-not-exist">表不存在</div>
+                                </td>
+                                <td class="db-cell right-db">
+                    <div class="row-count">0 条数据</div>
+                    <div class="update-time no-update">无更新时间数据</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="table-name">Card</td>
+                                <td class="db-cell left-db">
+                    <div class="table-not-exist">表不存在</div>
+                                </td>
+                                <td class="db-cell right-db">
+                    <div class="row-count">45 条数据</div>
+                    <div class="update-time">最近更新: 2015-07-27 10:42:22</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="table-name">CardCategory</td>
+                                <td class="db-cell left-db">
+                    <div class="table-not-exist">表不存在</div>
+                                </td>
+                                <td class="db-cell right-db">
+                    <div class="row-count">198 条数据</div>
+                    <div class="update-time no-update">没有更新字段</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="table-name">Channel</td>
+                                <td class="db-cell left-db">
+                    <div class="table-not-exist">表不存在</div>
+                                </td>
+                                <td class="db-cell right-db">
+                    <div class="row-count">25 条数据</div>
+                    <div class="update-time">最近更新: 2012-12-13 16:46:33</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="table-name">ChannelCategory</td>
+                                <td class="db-cell left-db">
+                    <div class="table-not-exist">表不存在</div>
+                                </td>
+                                <td class="db-cell right-db">
+                    <div class="row-count">12 条数据</div>
+                    <div class="update-time no-update">没有更新字段</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="table-name">ChannelIcon</td>
+                                <td class="db-cell left-db">
+                    <div class="row-count">12 条数据</div>
+                    <div class="update-time">最近更新: 2016-09-01 11:57:01</div>
+                                </td>
+                                <td class="db-cell right-db">
+                    <div class="row-count">23 条数据</div>
+                    <div class="update-time">最近更新: 2017-07-18 17:27:01</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="table-name">ChannelPushInfo</td>
+                                <td class="db-cell left-db">
+                    <div class="table-not-exist">表不存在</div>
+                                </td>
+                                <td class="db-cell right-db">
+                    <div class="row-count">55 条数据</div>
+                    <div class="update-time no-update">没有更新字段</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="table-name">ChannelPushInfoShowTime</td>
+                                <td class="db-cell left-db">
+                    <div class="table-not-exist">表不存在</div>
+                                </td>
+                                <td class="db-cell right-db">
+                    <div class="row-count">262 条数据</div>
+                    <div class="update-time no-update">没有更新字段</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="table-name">Channel_pd</td>
+                                <td class="db-cell left-db">
+                    <div class="table-not-exist">表不存在</div>
+                                </td>
+                                <td class="db-cell right-db">
+                    <div class="row-count">21 条数据</div>
+                    <div class="update-time no-update">没有更新字段</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="table-name">ClearPath</td>
+                                <td class="db-cell left-db">
+                    <div class="table-not-exist">表不存在</div>
+                                </td>
+                                <td class="db-cell right-db">
+                    <div class="row-count">29 条数据</div>
+                    <div class="update-time">最近更新: 2016-09-26 17:28:34</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="table-name">DemandVideoType</td>
+                                <td class="db-cell left-db">
+                    <div class="table-not-exist">表不存在</div>
+                                </td>
+                                <td class="db-cell right-db">
+                    <div class="row-count">9 条数据</div>
+                    <div class="update-time no-update">没有更新字段</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="table-name">DeskIcon</td>
+                                <td class="db-cell left-db">
+                    <div class="table-not-exist">表不存在</div>
+                                </td>
+                                <td class="db-cell right-db">
+                    <div class="row-count">2 条数据</div>
+                    <div class="update-time no-update">没有更新字段</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="table-name">DeskPosters</td>
+                                <td class="db-cell left-db">
+                    <div class="table-not-exist">表不存在</div>
+                                </td>
+                                <td class="db-cell right-db">
+                    <div class="row-count">26 条数据</div>
+                    <div class="update-time">最近更新: 2015-04-24 17:20:24</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="table-name">DeskTVIcon</td>
+                                <td class="db-cell left-db">
+                    <div class="table-not-exist">表不存在</div>
+                                </td>
+                                <td class="db-cell right-db">
+                    <div class="row-count">12 条数据</div>
+                    <div class="update-time no-update">没有更新字段</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="table-name">DeviceOnline</td>
+                                <td class="db-cell left-db">
+                    <div class="table-not-exist">表不存在</div>
+                                </td>
+                                <td class="db-cell right-db">
+                    <div class="row-count">7520056 条数据</div>
+                    <div class="update-time">最近更新: 2017-07-18 17:27:34</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="table-name">Holiday</td>
+                                <td class="db-cell left-db">
+                    <div class="table-not-exist">表不存在</div>
+                                </td>
+                                <td class="db-cell right-db">
+                    <div class="row-count">212 条数据</div>
+                    <div class="update-time no-update">没有更新字段</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="table-name">Honor</td>
+                                <td class="db-cell left-db">
+                    <div class="table-not-exist">表不存在</div>
+                                </td>
+                                <td class="db-cell right-db">
+                    <div class="row-count">39 条数据</div>
+                    <div class="update-time no-update">没有更新字段</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="table-name">ImageClass</td>
+                                <td class="db-cell left-db">
+                    <div class="table-not-exist">表不存在</div>
+                                </td>
+                                <td class="db-cell right-db">
+                    <div class="row-count">0 条数据</div>
+                    <div class="update-time no-update">无更新时间数据</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="table-name">ImageInfo</td>
+                                <td class="db-cell left-db">
+                    <div class="table-not-exist">表不存在</div>
+                                </td>
+                                <td class="db-cell right-db">
+                    <div class="row-count">0 条数据</div>
+                    <div class="update-time no-update">无更新时间数据</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="table-name">IncrementPkg</td>
+                                <td class="db-cell left-db">
+                    <div class="table-not-exist">表不存在</div>
+                                </td>
+                                <td class="db-cell right-db">
+                    <div class="row-count">0 条数据</div>
+                    <div class="update-time no-update">无更新时间数据</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="table-name">IptvPartner</td>
+                                <td class="db-cell left-db">
+                    <div class="table-not-exist">表不存在</div>
+                                </td>
+                                <td class="db-cell right-db">
+                    <div class="row-count">1 条数据</div>
+                    <div class="update-time">最近更新: 2012-03-01 14:49:34</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="table-name">LeSoInfo</td>
+                                <td class="db-cell left-db">
+                    <div class="table-not-exist">表不存在</div>
+                                </td>
+                                <td class="db-cell right-db">
+                    <div class="row-count">2425 条数据</div>
+                    <div class="update-time no-update">没有更新字段</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="table-name">LiveRecommend</td>
+                                <td class="db-cell left-db">
+                    <div class="table-not-exist">表不存在</div>
+                                </td>
+                                <td class="db-cell right-db">
+                    <div class="row-count">532 条数据</div>
+                    <div class="update-time">最近更新: 2014-09-21 21:11:39</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="table-name">LiveRules</td>
+                                <td class="db-cell left-db">
+                    <div class="table-not-exist">表不存在</div>
+                                </td>
+                                <td class="db-cell right-db">
+                    <div class="row-count">1 条数据</div>
+                    <div class="update-time no-update">没有更新字段</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="table-name">LogoutLog</td>
+                                <td class="db-cell left-db">
+                    <div class="table-not-exist">表不存在</div>
+                                </td>
+                                <td class="db-cell right-db">
+                    <div class="row-count">1817829 条数据</div>
+                    <div class="update-time no-update">没有更新字段</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="table-name">MacCheckLog</td>
+                                <td class="db-cell left-db">
+                    <div class="table-not-exist">表不存在</div>
+                                </td>
+                                <td class="db-cell right-db">
+                    <div class="row-count">47922 条数据</div>
+                    <div class="update-time">最近更新: 2016-03-09 03:46:42</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="table-name">MemberShip</td>
+                                <td class="db-cell left-db">
+                    <div class="table-not-exist">表不存在</div>
+                                </td>
+                                <td class="db-cell right-db">
+                    <div class="row-count">4 条数据</div>
+                    <div class="update-time">最近更新: 2015-09-11 20:38:04</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="table-name">Menu</td>
+                                <td class="db-cell left-db">
+                    <div class="table-not-exist">表不存在</div>
+                                </td>
+                                <td class="db-cell right-db">
+                    <div class="row-count">147 条数据</div>
+                    <div class="update-time">最近更新: 2016-10-28 15:05:26</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="table-name">Message</td>
+                                <td class="db-cell left-db">
+                    <div class="table-not-exist">表不存在</div>
+                                </td>
+                                <td class="db-cell right-db">
+                    <div class="row-count">153 条数据</div>
+                    <div class="update-time">最近更新: 2015-03-18 14:49:19</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="table-name">MessageType</td>
+                                <td class="db-cell left-db">
+                    <div class="table-not-exist">表不存在</div>
+                                </td>
+                                <td class="db-cell right-db">
+                    <div class="row-count">4 条数据</div>
+                    <div class="update-time no-update">没有更新字段</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="table-name">MobileActive</td>
+                                <td class="db-cell left-db">
+                    <div class="table-not-exist">表不存在</div>
+                                </td>
+                                <td class="db-cell right-db">
+                    <div class="row-count">492917 条数据</div>
+                    <div class="update-time">最近更新: 2015-07-06 07:42:20</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="table-name">MobileAssistant</td>
+                                <td class="db-cell left-db">
+                    <div class="table-not-exist">表不存在</div>
+                                </td>
+                                <td class="db-cell right-db">
+                    <div class="row-count">32 条数据</div>
+                    <div class="update-time no-update">没有更新字段</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="table-name">MobileAssistantApk</td>
+                                <td class="db-cell left-db">
+                    <div class="table-not-exist">表不存在</div>
+                                </td>
+                                <td class="db-cell right-db">
+                    <div class="row-count">2 条数据</div>
+                    <div class="update-time no-update">无更新时间数据</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="table-name">Navigator</td>
+                                <td class="db-cell left-db">
+                    <div class="table-not-exist">表不存在</div>
+                                </td>
+                                <td class="db-cell right-db">
+                    <div class="row-count">1603 条数据</div>
+                    <div class="update-time no-update">没有更新字段</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="table-name">NavigatorCategory</td>
+                                <td class="db-cell left-db">
+                    <div class="table-not-exist">表不存在</div>
+                                </td>
+                                <td class="db-cell right-db">
+                    <div class="row-count">33 条数据</div>
+                    <div class="update-time no-update">没有更新字段</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="table-name">NewMessage</td>
+                                <td class="db-cell left-db">
+                    <div class="table-not-exist">表不存在</div>
+                                </td>
+                                <td class="db-cell right-db">
+                    <div class="row-count">269 条数据</div>
+                    <div class="update-time">最近更新: 2018-08-24 15:20:16</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="table-name">NewMessageType</td>
+                                <td class="db-cell left-db">
+                    <div class="table-not-exist">表不存在</div>
+                                </td>
+                                <td class="db-cell right-db">
+                    <div class="row-count">11 条数据</div>
+                    <div class="update-time">最近更新: 2016-09-23 16:23:24</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="table-name">OpLog</td>
+                                <td class="db-cell left-db">
+                    <div class="table-not-exist">表不存在</div>
+                                </td>
+                                <td class="db-cell right-db">
+                    <div class="row-count">0 条数据</div>
+                    <div class="update-time no-update">没有更新字段</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="table-name">ParamInfo</td>
+                                <td class="db-cell left-db">
+                    <div class="table-not-exist">表不存在</div>
+                                </td>
+                                <td class="db-cell right-db">
+                    <div class="row-count">4 条数据</div>
+                    <div class="update-time no-update">没有更新字段</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="table-name">PartneredBox</td>
+                                <td class="db-cell left-db">
+                    <div class="table-not-exist">表不存在</div>
+                                </td>
+                                <td class="db-cell right-db">
+                    <div class="row-count">15 条数据</div>
+                    <div class="update-time no-update">没有更新字段</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="table-name">PlayUrlSet</td>
+                                <td class="db-cell left-db">
+                    <div class="table-not-exist">表不存在</div>
+                                </td>
+                                <td class="db-cell right-db">
+                    <div class="row-count">36 条数据</div>
+                    <div class="update-time no-update">没有更新字段</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="table-name">Posters</td>
+                                <td class="db-cell left-db">
+                    <div class="table-not-exist">表不存在</div>
+                                </td>
+                                <td class="db-cell right-db">
+                    <div class="row-count">13 条数据</div>
+                    <div class="update-time no-update">没有更新字段</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="table-name">Program</td>
+                                <td class="db-cell left-db">
+                    <div class="table-not-exist">表不存在</div>
+                                </td>
+                                <td class="db-cell right-db">
+                    <div class="row-count">433537 条数据</div>
+                    <div class="update-time">最近更新: 2014-12-17 09:30:29</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="table-name">ProgramCategory</td>
+                                <td class="db-cell left-db">
+                    <div class="table-not-exist">表不存在</div>
+                                </td>
+                                <td class="db-cell right-db">
+                    <div class="row-count">0 条数据</div>
+                    <div class="update-time no-update">无更新时间数据</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="table-name">ProgramSChannel</td>
+                                <td class="db-cell left-db">
+                    <div class="table-not-exist">表不存在</div>
+                                </td>
+                                <td class="db-cell right-db">
+                    <div class="row-count">310 条数据</div>
+                    <div class="update-time">最近更新: 2015-12-15 06:00:06</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="table-name">ProgramSource</td>
+                                <td class="db-cell left-db">
+                    <div class="table-not-exist">表不存在</div>
+                                </td>
+                                <td class="db-cell right-db">
+                    <div class="row-count">2 条数据</div>
+                    <div class="update-time no-update">无更新时间数据</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="table-name">ProgramVideoRate</td>
+                                <td class="db-cell left-db">
+                    <div class="table-not-exist">表不存在</div>
+                                </td>
+                                <td class="db-cell right-db">
+                    <div class="row-count">9 条数据</div>
+                    <div class="update-time">最近更新: 2015-07-09 17:23:22</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="table-name">QRCodeLog</td>
+                                <td class="db-cell left-db">
+                    <div class="table-not-exist">表不存在</div>
+                                </td>
+                                <td class="db-cell right-db">
+                    <div class="row-count">3341971 条数据</div>
+                    <div class="update-time">最近更新: 2017-06-26 01:42:53</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="table-name">RoleMenuMember</td>
+                                <td class="db-cell left-db">
+                    <div class="table-not-exist">表不存在</div>
+                                </td>
+                                <td class="db-cell right-db">
+                    <div class="row-count">103 条数据</div>
+                    <div class="update-time no-update">没有更新字段</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="table-name">SMSProfile</td>
+                                <td class="db-cell left-db">
+                    <div class="table-not-exist">表不存在</div>
+                                </td>
+                                <td class="db-cell right-db">
+                    <div class="row-count">3 条数据</div>
+                    <div class="update-time no-update">没有更新字段</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="table-name">ScreenSavers</td>
+                                <td class="db-cell left-db">
+                    <div class="table-not-exist">表不存在</div>
+                                </td>
+                                <td class="db-cell right-db">
+                    <div class="row-count">16 条数据</div>
+                    <div class="update-time">最近更新: 2016-11-21 12:06:48</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="table-name">Shop</td>
+                                <td class="db-cell left-db">
+                    <div class="table-not-exist">表不存在</div>
+                                </td>
+                                <td class="db-cell right-db">
+                    <div class="row-count">12 条数据</div>
+                    <div class="update-time no-update">没有更新字段</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="table-name">SmsMac</td>
+                                <td class="db-cell left-db">
+                    <div class="table-not-exist">表不存在</div>
+                                </td>
+                                <td class="db-cell right-db">
+                    <div class="row-count">81500 条数据</div>
+                    <div class="update-time">最近更新: 2017-03-29 16:17:30</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="table-name">StorageTemp</td>
+                                <td class="db-cell left-db">
+                    <div class="table-not-exist">表不存在</div>
+                                </td>
+                                <td class="db-cell right-db">
+                    <div class="row-count">8002 条数据</div>
+                    <div class="update-time">最近更新: 2012-08-27 11:04:14</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="table-name">Terminal</td>
+                                <td class="db-cell left-db">
+                    <div class="table-not-exist">表不存在</div>
+                                </td>
+                                <td class="db-cell right-db">
+                    <div class="row-count">13 条数据</div>
+                    <div class="update-time">最近更新: 2016-04-19 15:05:51</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="table-name">ThemePack</td>
+                                <td class="db-cell left-db">
+                    <div class="table-not-exist">表不存在</div>
+                                </td>
+                                <td class="db-cell right-db">
+                    <div class="row-count">33 条数据</div>
+                    <div class="update-time">最近更新: 2016-01-16 23:51:29</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="table-name">ThemePackCategory</td>
+                                <td class="db-cell left-db">
+                    <div class="table-not-exist">表不存在</div>
+                                </td>
+                                <td class="db-cell right-db">
+                    <div class="row-count">0 条数据</div>
+                    <div class="update-time no-update">没有更新字段</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="table-name">ThemePackFile</td>
+                                <td class="db-cell left-db">
+                    <div class="table-not-exist">表不存在</div>
+                                </td>
+                                <td class="db-cell right-db">
+                    <div class="row-count">35 条数据</div>
+                    <div class="update-time">最近更新: 2015-02-13 15:18:07</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="table-name">Tmp_Box</td>
+                                <td class="db-cell left-db">
+                    <div class="table-not-exist">表不存在</div>
+                                </td>
+                                <td class="db-cell right-db">
+                    <div class="row-count">50 条数据</div>
+                    <div class="update-time no-update">没有更新字段</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="table-name">TvChannel</td>
+                                <td class="db-cell left-db">
+                    <div class="table-not-exist">表不存在</div>
+                                </td>
+                                <td class="db-cell right-db">
+                    <div class="row-count">8186 条数据</div>
+                    <div class="update-time">最近更新: 2014-09-03 13:07:18</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="table-name">Upgrade</td>
+                                <td class="db-cell left-db">
+                    <div class="table-not-exist">表不存在</div>
+                                </td>
+                                <td class="db-cell right-db">
+                    <div class="row-count">1835 条数据</div>
+                    <div class="update-time">最近更新: 2016-10-24 17:40:31</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="table-name">UpgradeConditionCode</td>
+                                <td class="db-cell left-db">
+                    <div class="table-not-exist">表不存在</div>
+                                </td>
+                                <td class="db-cell right-db">
+                    <div class="row-count">4 条数据</div>
+                    <div class="update-time no-update">没有更新字段</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="table-name">UpgradeOpCode</td>
+                                <td class="db-cell left-db">
+                    <div class="table-not-exist">表不存在</div>
+                                </td>
+                                <td class="db-cell right-db">
+                    <div class="row-count">1 条数据</div>
+                    <div class="update-time no-update">没有更新字段</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="table-name">UpgradePlan</td>
+                                <td class="db-cell left-db">
+                    <div class="table-not-exist">表不存在</div>
+                                </td>
+                                <td class="db-cell right-db">
+                    <div class="row-count">3085 条数据</div>
+                    <div class="update-time">最近更新: 2016-11-24 10:05:36</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="table-name">UpgradePlanCondition</td>
+                                <td class="db-cell left-db">
+                    <div class="table-not-exist">表不存在</div>
+                                </td>
+                                <td class="db-cell right-db">
+                    <div class="row-count">6 条数据</div>
+                    <div class="update-time">最近更新: 2016-08-22 20:02:35</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="table-name">UpgradeTransVer</td>
+                                <td class="db-cell left-db">
+                    <div class="table-not-exist">表不存在</div>
+                                </td>
+                                <td class="db-cell right-db">
+                    <div class="row-count">154 条数据</div>
+                    <div class="update-time">最近更新: 2016-05-19 18:29:36</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="table-name">User</td>
+                                <td class="db-cell left-db">
+                    <div class="table-not-exist">表不存在</div>
+                                </td>
+                                <td class="db-cell right-db">
+                    <div class="row-count">11007564 条数据</div>
+                    <div class="update-time">最近更新: 2017-06-19 09:01:03</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="table-name">UserApplication</td>
+                                <td class="db-cell left-db">
+                    <div class="table-not-exist">表不存在</div>
+                                </td>
+                                <td class="db-cell right-db">
+                    <div class="row-count">8005 条数据</div>
+                    <div class="update-time no-update">没有更新字段</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="table-name">UserCookie</td>
+                                <td class="db-cell left-db">
+                    <div class="table-not-exist">表不存在</div>
+                                </td>
+                                <td class="db-cell right-db">
+                    <div class="row-count">1994870 条数据</div>
+                    <div class="update-time">最近更新: 2017-07-16 12:42:48</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="table-name">UserDevice</td>
+                                <td class="db-cell left-db">
+                    <div class="table-not-exist">表不存在</div>
+                                </td>
+                                <td class="db-cell right-db">
+                    <div class="row-count">7520056 条数据</div>
+                    <div class="update-time">最近更新: 2017-07-18 17:27:34</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="table-name">UserExpend2</td>
+                                <td class="db-cell left-db">
+                    <div class="table-not-exist">表不存在</div>
+                                </td>
+                                <td class="db-cell right-db">
+                    <div class="row-count">12474 条数据</div>
+                    <div class="update-time">最近更新: 2016-03-03 13:25:51</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="table-name">UserFeedback</td>
+                                <td class="db-cell left-db">
+                    <div class="table-not-exist">表不存在</div>
+                                </td>
+                                <td class="db-cell right-db">
+                    <div class="row-count">2187589 条数据</div>
+                    <div class="update-time">最近更新: 2016-06-22 10:17:03</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="table-name">UserInfoByMac</td>
+                                <td class="db-cell left-db">
+                    <div class="table-not-exist">表不存在</div>
+                                </td>
+                                <td class="db-cell right-db">
+                    <div class="row-count">1 条数据</div>
+                    <div class="update-time no-update">没有更新字段</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="table-name">UserMac</td>
+                                <td class="db-cell left-db">
+                    <div class="table-not-exist">表不存在</div>
+                                </td>
+                                <td class="db-cell right-db">
+                    <div class="row-count">7596882 条数据</div>
+                    <div class="update-time no-update">没有更新字段</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="table-name">UserMacLogin</td>
+                                <td class="db-cell left-db">
+                    <div class="table-not-exist">表不存在</div>
+                                </td>
+                                <td class="db-cell right-db">
+                    <div class="row-count">2350487 条数据</div>
+                    <div class="update-time">最近更新: 2014-09-10 18:02:02</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="table-name">UserMacPwd</td>
+                                <td class="db-cell left-db">
+                    <div class="table-not-exist">表不存在</div>
+                                </td>
+                                <td class="db-cell right-db">
+                    <div class="row-count">1770 条数据</div>
+                    <div class="update-time no-update">没有更新字段</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="table-name">VideoOnDemand</td>
+                                <td class="db-cell left-db">
+                    <div class="table-not-exist">表不存在</div>
+                                </td>
+                                <td class="db-cell right-db">
+                    <div class="row-count">1383 条数据</div>
+                    <div class="update-time">最近更新: 2016-05-09 09:41:59</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="table-name">VideoOnDemandCategory</td>
+                                <td class="db-cell left-db">
+                    <div class="table-not-exist">表不存在</div>
+                                </td>
+                                <td class="db-cell right-db">
+                    <div class="row-count">9 条数据</div>
+                    <div class="update-time">最近更新: 2014-08-27 13:54:02</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="table-name">Warehouse</td>
+                                <td class="db-cell left-db">
+                    <div class="table-not-exist">表不存在</div>
+                                </td>
+                                <td class="db-cell right-db">
+                    <div class="row-count">8 条数据</div>
+                    <div class="update-time">最近更新: 2011-10-11 13:57:57</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="table-name">WeatherAreaCode</td>
+                                <td class="db-cell left-db">
+                    <div class="table-not-exist">表不存在</div>
+                                </td>
+                                <td class="db-cell right-db">
+                    <div class="row-count">2565 条数据</div>
+                    <div class="update-time no-update">没有更新字段</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="table-name">carousel_imgs</td>
+                                <td class="db-cell left-db">
+                    <div class="table-not-exist">表不存在</div>
+                                </td>
+                                <td class="db-cell right-db">
+                    <div class="row-count">0 条数据</div>
+                    <div class="update-time no-update">无更新时间数据</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="table-name">euiapp</td>
+                                <td class="db-cell left-db">
+                    <div class="table-not-exist">表不存在</div>
+                                </td>
+                                <td class="db-cell right-db">
+                    <div class="row-count">15 条数据</div>
+                    <div class="update-time">最近更新: 2019-01-03 17:27:33</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="table-name">euiapp_sdk</td>
+                                <td class="db-cell left-db">
+                    <div class="table-not-exist">表不存在</div>
+                                </td>
+                                <td class="db-cell right-db">
+                    <div class="row-count">135 条数据</div>
+                    <div class="update-time no-update">无更新时间数据</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="table-name">euiauth</td>
+                                <td class="db-cell left-db">
+                    <div class="table-not-exist">表不存在</div>
+                                </td>
+                                <td class="db-cell right-db">
+                    <div class="row-count">0 条数据</div>
+                    <div class="update-time no-update">无更新时间数据</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="table-name">euisdk</td>
+                                <td class="db-cell left-db">
+                    <div class="table-not-exist">表不存在</div>
+                                </td>
+                                <td class="db-cell right-db">
+                    <div class="row-count">6 条数据</div>
+                    <div class="update-time">最近更新: 2018-10-22 19:04:52</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="table-name">euisdk_user</td>
+                                <td class="db-cell left-db">
+                    <div class="table-not-exist">表不存在</div>
+                                </td>
+                                <td class="db-cell right-db">
+                    <div class="row-count">88 条数据</div>
+                    <div class="update-time no-update">没有更新字段</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="table-name">tmp_boxGroupInfo</td>
+                                <td class="db-cell left-db">
+                    <div class="table-not-exist">表不存在</div>
+                                </td>
+                                <td class="db-cell right-db">
+                    <div class="row-count">3054 条数据</div>
+                    <div class="update-time no-update">没有更新字段</div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="footer">
+            报告生成完成 | MySQL数据库对比工具
+        </div>
+    </div>
+</body>
+</html>

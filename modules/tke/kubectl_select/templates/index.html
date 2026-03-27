@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <title>TKE Kubectl 查询平台</title>
+    <link rel="stylesheet" href="static/style.css">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>🔍 TKE Kubectl 查询平台</h1>
+            <p class="subtitle">通过自定义 Python 脚本查询 Kubernetes 集群信息</p>
+        </header>
+
+        <div id="kubectl-warning" class="warning-box hidden">
+            <div class="warning-icon">⚠️</div>
+            <div class="warning-content">
+                <h3>kubectl 未安装</h3>
+                <p>请先安装 kubectl 工具才能使用此平台。</p>
+                <a href="https://kubernetes.io/zh/docs/tasks/tools/" target="_blank" class="install-link">安装指南 →</a>
+            </div>
+        </div>
+
+        <main class="main-content">
+            <div class="action-bar">
+                <button id="add-script-btn" class="btn btn-primary">
+                    <span class="btn-icon">➕</span>
+                    添加脚本
+                </button>
+                <button id="refresh-scripts-btn" class="btn btn-secondary">
+                    <span class="btn-icon">🔄</span>
+                    刷新列表
+                </button>
+            </div>
+
+            <div class="scripts-container">
+                <div class="loading hidden" id="scripts-loading">
+                    <div class="spinner"></div>
+                    <span>加载中...</span>
+                </div>
+                <div id="scripts-list" class="scripts-list"></div>
+            </div>
+
+            <div class="result-container hidden" id="result-container">
+                <div class="result-header">
+                    <h3>📋 执行结果</h3>
+                    <button id="close-result" class="btn-close">×</button>
+                </div>
+                <div class="result-content">
+                    <pre class="result-output" id="result-output"></pre>
+                </div>
+            </div>
+
+            <div class="error-container hidden" id="error-container">
+                <div class="error-header">
+                    <span class="error-icon">❌</span>
+                    <h3>错误信息</h3>
+                </div>
+                <div class="error-content" id="error-content"></div>
+            </div>
+        </main>
+
+        <div class="modal hidden" id="script-editor-modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>📝 <span id="editor-title">编辑脚本</span></h3>
+                    <button id="close-editor" class="btn-close">×</button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="script-title">脚本标题 *</label>
+                        <input type="text" id="script-title" class="form-input" placeholder="请输入脚本标题" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="script-description">脚本描述</label>
+                        <input type="text" id="script-description" class="form-input" placeholder="请输入脚本描述（可选）">
+                    </div>
+                    <div class="form-group">
+                        <label>参数配置</label>
+                        <div id="parameters-list" class="parameters-list"></div>
+                        <button id="add-parameter-btn" class="btn btn-small btn-secondary">
+                            <span class="btn-icon">➕</span>
+                            添加参数
+                        </button>
+                    </div>
+                    <div class="form-group">
+                        <label for="script-editor">脚本代码 *</label>
+                        <textarea id="script-editor" class="script-editor" spellcheck="false" placeholder="#!/usr/bin/env python3
+import subprocess
+import json
+
+result = subprocess.run(['kubectl', 'get', 'pods'], capture_output=True, text=True)
+print(json.dumps({'pods': result.stdout}))"></textarea>
+                    </div>
+                    <div id="script-validation" class="validation-message"></div>
+                </div>
+                <div class="modal-footer">
+                    <button id="save-script-btn" class="btn btn-primary">💾 保存</button>
+                    <button id="cancel-edit-btn" class="btn btn-secondary">取消</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal hidden" id="execute-modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>🚀 执行脚本: <span id="execute-script-name"></span></h3>
+                    <button id="close-execute" class="btn-close">×</button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label>参数配置</label>
+                        <div id="execute-parameters-list" class="parameters-list"></div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button id="confirm-execute-btn" class="btn btn-primary">
+                        <span class="btn-icon">▶️</span>
+                        执行
+                    </button>
+                    <button id="cancel-execute-btn" class="btn btn-secondary">取消</button>
+                </div>
+            </div>
+        </div>
+
+        <footer class="footer">
+            <p>© 2026 TKE Kubectl 查询平台 | 安全命令白名单控制</p>
+        </footer>
+    </div>
+
+    <script src="static/app.js"></script>
+</body>
+</html>
